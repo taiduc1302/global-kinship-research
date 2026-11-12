@@ -1,0 +1,25 @@
+# Do not check in real genealogical information, even when using a private fork.
+/cases/
+/private/
+/data/
+/reports/
+/.env
+.env.*
+*.sqlite
+*.sqlite3
+*.db
+*.ged
+*.gedcom
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.tif
+*.tiff
+*.docx
+__pycache__/
+.pytest_cache/
+.venv/
+*.egg-info/
+dist/
+build/

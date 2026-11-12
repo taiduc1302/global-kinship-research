@@ -1,0 +1,3 @@
+[submodule "upstreams/ex-ussr-kinship-research"]
+    path = upstreams/ex-ussr-kinship-research
+    url = https://github.com/DenisSergeevitch/ex-ussr-kinship-research.git

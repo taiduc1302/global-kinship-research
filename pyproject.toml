@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "global-kinship-research"
+version = "0.1.0"
+description = "Local-first, evidence-first genealogy research toolkit with regional source profiles"
+requires-python = ">=3.10"
+authors = [{name = "Global Kinship Research contributors"}]
+readme = "README.md"
+license = "MIT"
+keywords = ["genealogy", "family-history", "evidence", "vietnam", "korea", "ex-ussr"]
+
+[project.scripts]
+kinship = "kinship.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

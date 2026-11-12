@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.1",
+  "case_id": "synthetic-cross-border-001",
+  "visibility": "synthetic",
+  "research_question": "Fictional example: did one recorded person parent another?",
+  "regions": ["vietnam", "korea"],
+  "people": [
+    {"id": "P1", "living": false, "names": [{"original": "Nguyễn Văn An", "language": "vi", "script": "Latn"}]},
+    {"id": "P2", "living": false, "names": [{"original": "Nguyễn Thị Bình", "language": "vi", "script": "Latn"}]},
+    {"id": "P3", "living": false, "names": [{"original": "김하늘", "language": "ko", "script": "Hang"}]}
+  ],
+  "artifacts": [
+    {"id": "A1", "citation": "Entirely fictional parish record, page 1", "independence_group": "G1", "access": "synthetic"},
+    {"id": "A1copy", "citation": "Invented duplicate image of A1, page 1", "independence_group": "G1", "access": "synthetic"},
+    {"id": "A2", "citation": "Entirely fictional independent household record, page 3", "independence_group": "G2", "access": "synthetic"}
+  ],
+  "claims": [
+    {"id": "C1", "subject_id": "P1", "type": "parent_of", "object_id": "P2", "status": "corroborated", "artifact_ids": ["A1", "A2"], "notes": "Test-only; identity not proven in the real world"},
+    {"id": "C2", "subject_id": "P3", "type": "birth_place", "literal_value": "Fictional place", "status": "single-source", "artifact_ids": ["A2"], "notes": "Independent synthetic fact claim"}
+  ],
+  "search_log": []
+}
