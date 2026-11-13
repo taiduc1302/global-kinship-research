@@ -247,7 +247,7 @@ async function init() {
     const file = event.target.files?.[0]; if (!file) return;
     try {
       if (file.size > 512000) throw new Error('GEDCOM import limit is 512 KB');
-      const text = await file.text();
+      const text = new TextDecoder('utf-8', {fatal: true}).decode(await file.arrayBuffer());
       const parsed = await api('/api/import-gedcom', {gedcom: text, region: state.region,
         case_id: 'local-gedcom', question: 'Review the evidence for relationships in this GEDCOM family file'});
       await useCase(parsed.case, 'Private GEDCOM import');
