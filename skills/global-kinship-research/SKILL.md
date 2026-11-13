@@ -1,44 +1,45 @@
 ---
 name: global-kinship-research
-description: Evidence-first genealogy research across ex-USSR, Vietnam, and Korea. Use for researching ancestors, analyzing family history records, preparing archival research plans, assessing corroboration and contradictions, preserving original-language names, documenting sources, or producing reviewable research summaries and GEDCOM integration plans. Works with local synthetic or user-approved private case files; never assumes live archive access or automatically proves kinship.
+description: Research family histories and ancestry across ex-USSR, Vietnam, Korea, China, Japan, Taiwan, Philippines, Thailand, Indonesia, Malaysia and India, using evidence-first source appraisal, culturally aware names, jurisdictions and calendar handling. Use for investigating original genealogical records, reviewing sources, planning archive searches, auditing related-person claims, managing uncertainty, or operating the local Global Kinship workbench and its opt-in read-only AI tools. Do not infer kinship from a name match or claim to have queried external archives unless verified.
 ---
 
 # Global Kinship Research
 
-Act as an **evidence-first research assistant**, not a family-tree fact generator.
+Act as a careful genealogical researcher with auditable, reviewable findings. Source references and local search results are not automatic proofs.
 
 ## Procedure
 
-1. Define one research question, the relevant time period, locations *as they existed at the event date*, and privacy sensitivity. Keep records of living people outside public projects. Never assume that the user has consented to upload an archive document to a third-party service.
-2. Choose a region: `ex-ussr`, `vietnam`, or `korea`. Consult the corresponding reference in `references/` and verify a live archive's access rules before using it.
-3. Preserve document excerpts verbatim in their original script; store transliterations, translations, machine-generated readings and normalized search strings as **separate, labeled** fields. Do not silently convert lunar dates, Hanja, Hán-Nôm or pre-reform Cyrillic.
-4. Generate a candidate search plan, using official institution catalogs before commercial indexes and user-contributed trees. Distinguish sources actually visited from search ideas. Do not invent citations, archive identifiers, documents, dates or biological connections.
-5. Assign each individual a stable separate ID. Namesakes are not the same person until distinguishing primary evidence is examined.
-6. Track every artifact and its `independence_group` (copies of the same original share a group). Log negative and inaccessible searches too. Record contradictions without averaging them or silently choosing one answer.
-7. Audit each claim and relationship before preparing conclusions. Describe labels as project-specific evidence thresholds, **not proof of ancestry**. An AI agent must not unilaterally approve or publish a family tree.
-8. Create a research report with source links, unresolved questions, alternate explanations and a clear next-step plan. If the output may be public, remove all living-person identifiers and check source-rights explicitly.
+1. Ask for a narrow research question, historical place, period, existing records and sharing boundaries. Never commit family cases to a public repository or send sensitive documents to third-party AI by default.
+2. Select a profile: `ex-ussr`, `vietnam`, `korea`, `china`, `japan`, `taiwan`, `philippines`, `thailand`, `indonesia`, `malaysia`, or `india`. Review `references/ex-ussr.md`, `references/vietnam.md`, `references/korea.md`, or `references/asia.md` as appropriate. Check current access rules of the actual custodian.
+3. Preserve original-language names, literal dates and record texts. Record transliterations and calendar conversions separately, marked as reviewed or provisional.
+4. Use local case search or draft an **unexecuted** research plan. Do not represent a portal link, suggested query or model speculation as a found record. Archive requests, scanning and website access require authorization and lawful access.
+5. Maintain unique person IDs, artifact IDs, citation details, source `independence_group`, claim statuses and a search log including negative results. Do not merge namesakes without distinguishing evidence.
+6. Run the structural evidence auditor before any report. Multiple scans of one original are dependent evidence; audit status is not factual verification or proof of parentage.
+7. Provide an evidence packet with known facts, source IDs, contradictions and specific next research steps. All conclusions require review by the researcher. Never publish or contact anyone without explicit approval.
 
-## Local CLI (when installed with this repository)
+## Workbench / CLI
 
 ```bash
-python -m pip install -e .
-kinship profile vietnam
-kinship plan korea --name "김하늘"
-kinship audit examples/synthetic-vietnam-korea-case.json
-kinship report examples/synthetic-vietnam-korea-case.json
+PYTHONPATH=src python -m kinship serve --port 8765
+PYTHONPATH=src python -m kinship profiles
+PYTHONPATH=src python -m kinship sources --region vietnam
+PYTHONPATH=src python -m kinship search examples/synthetic-vietnam-korea-case.json "Nguyen Van An"
+PYTHONPATH=src python -m kinship agent examples/synthetic-vietnam-korea-case.json --region korea --question "What evidence would be useful?"
+PYTHONPATH=src python -m kinship audit examples/synthetic-vietnam-korea-case.json
 ```
 
-`plan` only produces an **offline** checklist. `audit` checks structural provenance, not authenticity. Live search, archive contact, transcription and GEDCOM are not automated by v0.1.
+Default agent is a deterministic offline guide. With `--model` and a compatible local model service, the agent can invoke only `list_regions`, `region_guide`, `archive_leads`, `draft_search_plan`, `search_local_case`, `person_evidence`, `source_evidence`, `audit_evidence`. This is **actual tool dispatch**, not archive scraping. Do not issue unknown tools or assume live access. No automatic claim or publication approval.
 
-## Regional references
+External model endpoints are permitted only for synthetic cases, and only after explicit endpoint opt-in and per-request consent. Never send real family cases or restricted records to a hosted LLM through this application.
 
-- Ex-USSR: `references/ex-ussr.md` and separately maintained original [Denis Shiryaev skill](https://github.com/DenisSergeevitch/ex-ussr-kinship-research). Keep the source copyright and all license terms.
-- Vietnam: `references/vietnam.md` for *gia phả*, Hán-Nôm, solar/lunar dating and identity naming.
-- Korea: `references/korea.md` for *jokbo*, clan seats, Hangul/Hanja and archive access.
+## Ex-USSR compatibility
 
-## Verification gates
+The original project by Denis Shiryaev is a **separate** MIT-licensed pinned Git submodule at `upstreams/ex-ussr-kinship-research`. Read its own skill and preserve attribution. If you have its register CSV files, the `import-ex-ussr` CLI converts supported records, preserving original columns. Ambiguous relationships and unsupported statuses require human mapping; this importer does not read or upload documents. See `docs/EX_USSR_IMPORT.md`.
 
-- Refuse claims of independent corroboration from multiple mirror images of the same original.
-- Do not treat a matching name, clan, family-generation syllable or similar dates as positive identity proof by itself.
-- Refuse to treat an archive search that was not executed as evidence found.
-- No external transmission, authentication bypass, scraping, email or public upload without suitable authorization and access permission.
+## Hard gates
+
+- A surname, generational syllable, birth year or personal title is not a reliable person identity match.
+- `independence_group` counts original witnesses, not copies or mirror websites.
+- Sources must be traceable by archival citation; never invent page numbers, dates, archive IDs or people.
+- Public trees must exclude living/unknown people and restricted records; human review remains mandatory.
+- Never treat a model answer or a passing structural audit as proof of ancestral connection.

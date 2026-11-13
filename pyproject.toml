@@ -4,19 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "global-kinship-research"
-version = "0.1.0"
-description = "Local-first, evidence-first genealogy research toolkit with regional source profiles"
+version = "0.2.0"
+description = "Evidence-first local genealogy workbench with regional tools and opt-in AI"
 requires-python = ">=3.10"
 authors = [{name = "Global Kinship Research contributors"}]
 readme = "README.md"
 license = "MIT"
-keywords = ["genealogy", "family-history", "evidence", "vietnam", "korea", "ex-ussr"]
+keywords = ["genealogy", "family-history", "evidence", "asia", "ex-ussr", "agent"]
 
 [project.scripts]
 kinship = "kinship.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+kinship = ["static/*.html", "static/*.css", "static/*.js", "static/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,82 +1,94 @@
 # Global Kinship Research
 
-**Local-first, evidence-first genealogy research across historical borders.**
+**A local-first genealogy research workbench: explore a case, inspect sources, build region-specific research plans, and have an optional AI model call read-only evidence tools.**
 
-A small, testable Python research assistant and Agent Skill starter. It separates source records, interpretive claims, search plans, and case reports, with regional research profiles for **ex-USSR, Vietnam, and Korea**. This is **not** a live archive search service, automatic ancestor finder, commercial family tree service, or a tool that proves biological relationships.
+> **Status: v0.2 local prototype.** The app searches only documents and person records you supply in its case JSON. It **does not** search external archive records, identify relatives automatically, prove parentage, or contact archives. Official external websites are **research leads**, not verified matches.
 
-## Status (v0.1)
+## What works
 
-| Capability | State |
-| --- | --- |
-| Local case JSON + evidence audit | Implemented; tested with synthetic cases |
-| Independent-source group checks | Implemented; duplicate image is not a second witness |
-| Local text/diacritic-safe name query variants | Implemented; no speculative identity matching |
-| Ex-USSR research profile | Reference adapter; upstream pinned Git submodule |
-| Vietnam historical research profile | Curated guide (manual links, no scraping) |
-| Korea jokbo research profile | Curated guide (manual links, no scraping) |
-| Draft offline archive research plans | Implemented; they are *not* search results |
-| Local Markdown evidence packet | Implemented; fails closed on audit errors |
-| Agent Skill for Codex/Claude | Installable package under `skills/` |
-| GEDCOM import/export; OCR; live archive querying | **Not implemented**; planned with safety review |
-| Web UI; multiuser authentication; hosted database | **Not implemented** |
+| Capability | Status | Limits |
+| --- | --- | --- |
+| Browser workbench | **Implemented** | Accessible from `127.0.0.1`; no cloud hosting, accounts or database |
+| Search people / artifacts / claims | **Implemented** | Local case only, text search and safe Latin accent folding |
+| Source inspector / proof-group links | **Implemented** | Shows citations, copied source groups, claim links, verbatim names |
+| Regional source directory | **11 profiles** | Ex-USSR, Vietnam, Korea, China, Japan, Taiwan, Philippines, Thailand, Indonesia, Malaysia, India; links must be checked at use time |
+| Research assistant | **Implemented** | Offline route by default; optional local OpenAI-compatible model with real read-only tool calls |
+| Optional external AI endpoint | **Opt-in only** | HTTPS, synthetic test cases only, explicit server and per-request consent; never real private cases |
+| Evidence integrity auditor | **Implemented** | Distinguishes duplicated records, missing proof, bad links; cannot certify historical truth |
+| ex-USSR register importer | **Implemented** | Conservative CSV conversion from upstream templates, no ambiguous relationship mapping |
+| Live government archive searching, automatic OCR, GEDCOM, authentication | **Not implemented** | Require legal/technical review before deployment |
 
-## 2-minute local start
+### Screens and workflow
 
-Requires Python 3.10+; no cloud accounts, credentials, network, or paid services.
+- **Explore case** — open a local JSON case, search people or citations, inspect evidence without losing original spelling.
+- **Archive directory** — country and historical-region filtering, institution links and access notices.
+- **Research assistant** — region-aware planning and tool trace; optional model uses **whitelisted** operations to search the *local* case and audit sources.
+- **Evidence review** — audit failures, claims and independent source groups. No claim is ever automatically approved.
 
-```bash
-python -m pip install -e .
-kinship profiles
-kinship profile vietnam
-kinship plan vietnam --name "Nguyễn Văn An" --variant "Nguyen Van An"
-kinship audit examples/synthetic-vietnam-korea-case.json
-kinship report examples/synthetic-vietnam-korea-case.json --out reports/demo.md
-```
+The interface contains **synthetic sample records only**, until you open a private local file. No automatic telemetry, cookies, external fonts, JavaScript CDNs, archive scraping or uploaded data storage.
 
-If not installed, use `PYTHONPATH=src python -m kinship ...` on Linux/macOS, or `$env:PYTHONPATH='src'; python -m kinship ...` in Windows PowerShell.
+## Start with **no PowerShell** (Windows)
 
-Local tests require only the Python standard library:
+1. In GitHub, open **Code → Download ZIP** and extract the repository on your computer.
+2. If Python 3.10+ is installed, double-click **`scripts/Launch-Global-Kinship.cmd`**.
+3. The browser opens at `http://127.0.0.1:8765`. Keep the launcher window open while using the workbench.
 
-```bash
-python -m unittest discover -s tests -v
-```
+No Python packages need to be downloaded for the default workbench. The `Launch-Global-Kinship.cmd` file is plain text you can inspect before running. It is optional; developers can use the CLI directly.
 
-**Never commit real genealogy cases**: `cases/`, `private/`, `data/`, and `reports/` are ignored, but Git ignores are not a privacy guarantee. Keep real cases in encrypted private storage outside this public repository. Do not add scans, GEDCOMs, birth certificates or personally identifying details to issues, PRs, or prompts without reviewing their privacy and sharing permissions.
-
-## Architectural principles
-
-1. **Evidence before conclusions** — every claim must cite traceable artifacts and distinguish dependent copies from independent records.
-2. **Original scripts preserved** — do not replace Hán-Nôm, Hangul, Hanja, Cyrillic or other historic spellings with guessed romanizations.
-3. **Jurisdiction as of event date** — do not route a 19th-century event based solely on modern national borders.
-4. **Local-first by default** — no invisible scraping, uploading, or messaging; external archive access must be explicitly requested and lawful.
-5. **Human approval** — a passing structural audit does not independently prove ancestry, authenticity or source reliability.
-6. **Licenses isolated** — original repositories stay attributed, version-pinned, and individually licensed.
-
-## Upstream Ex-USSR research skill
-
-The original [DenisSergeevitch/ex-ussr-kinship-research](https://github.com/DenisSergeevitch/ex-ussr-kinship-research) is pinned as a Git submodule at `upstreams/ex-ussr-kinship-research`. Fetch it after cloning:
+On macOS/Linux or an existing Python installation:
 
 ```bash
-git submodule update --init --recursive
+PYTHONPATH=src python -m kinship serve --port 8765
 ```
 
-The submodule contains the **original upstream source and copyright**, and can be independently forked through GitHub. No upstream code was silently rewritten inside our core. Its skill is **not yet wired into this CLI**; v0.1 points researchers to its evidence and archival workflow. See [PROVENANCE.md](docs/PROVENANCE.md).
+### Research CLI
 
-## Files
-
-```text
-src/kinship/       Python CLI, profile registry, source-independence auditor, report
-skills/            Agent Skill instructions + regional reference guides
-docs/              Architecture, provenance, privacy, contributor policy, backlog
-examples/          Synthetic demonstration data ONLY
-tests/             Stdlib unittest regression tests
-upstreams/         Version-pinned original ex-USSR project (git submodule)
+```bash
+PYTHONPATH=src python -m kinship profiles
+PYTHONPATH=src python -m kinship sources --region vietnam
+PYTHONPATH=src python -m kinship plan korea --name "김하늘"
+PYTHONPATH=src python -m kinship search examples/synthetic-vietnam-korea-case.json "Nguyen Van An"
+PYTHONPATH=src python -m kinship audit examples/synthetic-vietnam-korea-case.json
+PYTHONPATH=src python -m kinship agent examples/synthetic-vietnam-korea-case.json --region vietnam --question "What would count as independent evidence?"
 ```
 
-## Roadmap
+This agent command runs a **deterministic offline guide** unless `--model` is supplied. No LLM is billed or contacted by default.
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for phases and acceptance tests. To publish this starter in your GitHub account, follow [docs/PUBLISH.md](docs/PUBLISH.md). Additional regions should arrive as plugins, not as copied databases. Contributions to Vietnam and Korea source guides are welcome, but cite authoritative archives and distinguish manual services from APIs.
+### Optional local AI agent
 
-## License and upstream rights
+An OpenAI-compatible local model server (e.g. a locally installed Ollama instance, if it exposes `/v1/chat/completions` with function calling) can power real tool-use turns:
 
-This repository's original code and docs use [MIT](LICENSE). Pinned upstream content retains its own MIT license and copyright. Other projects are *candidates*, **not included** in our codebase; see [docs/SOURCE_REVIEW.md](docs/SOURCE_REVIEW.md). A repository being public is not itself permission to reuse its content. Website content and archival records have separate terms and privacy restrictions.
+```bash
+PYTHONPATH=src python -m kinship serve --model "YOUR_LOCAL_MODEL_NAME" --endpoint http://127.0.0.1:11434/v1/chat/completions
+```
+
+Model compatibility varies by engine/model. Tool calls are validated against a read-only allowlist; unsupported calls fail closed. Real model service was **not** available during v0.2 validation, so model integration was tested with a simulated client, not claimed production-proven.
+
+External models require `--allow-remote` on the server and a per-request consent checkbox, and are restricted to **synthetic cases**. Do not transmit living-person information or restricted records to external AI. API credentials, if needed, come from the `KINSHIP_API_KEY` environment variable and are never stored in a case file.
+
+### Convert Ex-USSR project registers
+
+If you have registers produced with the pinned [ex-USSR Kinship Research](https://github.com/DenisSergeevitch/ex-ussr-kinship-research) templates:
+
+```bash
+PYTHONPATH=src python -m kinship import-ex-ussr private/source-registers --case-id my-private-case --question "Which records exist?" --out private/my-private-case.json
+```
+
+The importer preserves original CSV fields, name text and independence groups; it refuses ambiguous IDs/statuses instead of guessing. **Never commit the imported JSON**, even if it contains only historical family data. Template format and mapping limits: [docs/EX_USSR_IMPORT.md](docs/EX_USSR_IMPORT.md).
+
+## Verification
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+node --check src/kinship/static/app.js      # optional JavaScript parse validation
+```
+
+Tests use the standard library, a fake model client and synthetic cases. The browser interface was also inspected at desktop and mobile sizes; see [docs/QA.md](docs/QA.md). **No GitHub Actions were added.**
+
+## Architecture and guardrails
+
+Read [ARCHITECTURE](docs/ARCHITECTURE.md), [SECURITY & PRIVACY](docs/SECURITY_PRIVACY.md), [PROVENANCE](docs/PROVENANCE.md), and [ROADMAP](docs/ROADMAP.md).
+
+The original ex-USSR project is a **pinned Git submodule**, not copied into our MIT core. Its own license and history remain intact. To obtain its files from a Git clone: `git submodule update --init --recursive`. The importer itself works with CSV files you already have and does not require the submodule to be checked out.
+
+This project’s original code is MIT-licensed. Other family-tree apps are **candidates for evaluation**, not silently incorporated. No real family records, protected archival scans, model keys or third-party licensed databases belong in this public repository.

@@ -1,41 +1,18 @@
-# Publish to GitHub (Windows PowerShell)
+# Repository publication and local startup
 
-This is a one-time action. **Do not upload private case data.** The authoring connector could not create a GitHub repository or fork, so this starter was delivered as a complete local Git bundle and a separate source ZIP.
+Canonical source repository: https://github.com/taiduc1302/global-kinship-research
 
-## Preferred: preserve Git history and pinned upstream
+v0.1 was published directly via the connected GitHub integration. The source repository has the original ex-USSR project linked as a Git **submodule** at a pinned upstream commit and preserves its separate license. GitHub ZIP downloads do **not** include submodule contents; the optional `import-ex-ussr` command imports files obtained separately from the original project.
 
-1. Open https://github.com/new in the account `taiduc1302`.
-2. Set repository name `global-kinship-research`, choose **Public**, and leave **Add a README / .gitignore / license** unchecked so the repository stays empty. Create the repository.
-3. Download `global-kinship-research-v0.1.bundle` to your local Downloads folder.
-4. Open PowerShell and run:
+For v0.2, contributors can download the source ZIP in the GitHub browser and, on Windows with Python 3.10+, double-click `scripts/Launch-Global-Kinship.cmd` to run the local workbench. This does not require PowerShell, GitHub Actions or hosting personal family data online.
 
-```powershell
-cd "$HOME\Downloads"
-git clone ".\global-kinship-research-v0.1.bundle" "global-kinship-research"
-cd ".\global-kinship-research"
-git remote set-url origin "https://github.com/taiduc1302/global-kinship-research.git"
-git push -u origin main
-git submodule update --init --recursive
-python -m unittest discover -s tests -v
-```
+Before publishing any release:
 
-If Git authentication fails, authenticate with GitHub using your normal credential manager. Do not paste any access tokens into chats, issues, or source files. The pinned upstream Git submodule is fetched from the original author at the exact reviewed commit.
+1. Run `PYTHONPATH=src python -m unittest discover -s tests -v` locally.
+2. Check the source for real family data, secrets and restricted documents.
+3. Check changed external dependencies and license/notice obligations.
+4. For frontend changes, run a browser test at desktop and mobile sizes.
+5. Record what was actually tested. Do not claim live archive or model integration if only mocks were used.
+6. Verify the GitHub commit SHA, README, package data and `upstreams` submodule pin after the push.
 
-## Source ZIP alternative
-
-The `-source.zip` archive contains program source, examples, docs and skill, but **not Git history or upstream submodule contents**. You can inspect or develop the code by extracting it; for proper publication, the bundle method above is recommended. Never upload the ZIP as one compressed file and assume GitHub will unpack it.
-
-## Optional separate fork of upstream
-
-Visit https://github.com/DenisSergeevitch/ex-ussr-kinship-research and use GitHub's **Fork** action to create an independent `taiduc1302/ex-ussr-kinship-research`. This is distinct from the submodule; the main project currently points to the author's original repository. Preserve upstream LICENSE and notices. If you later change submodule origin to your fork, review its commit SHA rather than moving it to an unreviewed `main` tip.
-
-## Local verification without GitHub Actions
-
-```powershell
-python -m pip install -e .
-python -m unittest discover -s tests -v
-kinship audit examples/synthetic-vietnam-korea-case.json
-kinship plan korea --name "김하늘"
-```
-
-A structural test pass does not validate specific historical facts, archive access or correctness of family relationships.
+No public website should host real cases until a separate privacy, authentication and storage design is approved.

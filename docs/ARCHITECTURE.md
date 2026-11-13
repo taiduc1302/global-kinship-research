@@ -1,46 +1,43 @@
-# Architecture v0.1
+# Architecture v0.2: local workbench + constrained research agent
 
-## Intent
+## Data flow
 
-A family-history research **workbench** rather than a single monolithic genealogy app. Archive discovery, genealogical data persistence, publication, and authorization are distinct concerns.
+```text
+Local JSON case / synthetic demo (browser memory only)
+  ↕ JSON POST (127.0.0.1, same-origin, bounded, not persisted)
+Python stdlib HTTP server (kinship.web)
+  ├── region registry (kinship.profiles) → source lead manifest (kinship.catalog)
+  ├── literal local search (kinship.research) → person/artifact/claim inspector
+  ├── deterministic structural audit (kinship.audit) → review-only evidence notices
+  └── research agent (kinship.agent) → whitelisted read-only tools
+       ├── region_guide / archive_leads / draft_search_plan
+       ├── search_local_case / person_evidence / source_evidence
+       └── audit_evidence
+       ↕ optional OpenAI-compatible local model (or explicit synthetic-only remote)
+```
 
-### Modules and boundaries
+No cloud state, code execution, email, website scraping, autonomous approval, automatic file writes or background agents. The UI fetches the synthetic example from the same local process. All sensitive case data remain in browser memory during a session; local HTTP transports case JSON to localhost for research operations, without persistence.
 
-- `kinship.profiles`: curated country- and region-specific guides, requiring verification at use time.
-- `kinship.names`: safe query variants, preserving literals; not transliteration or cross-document identity matching.
-- `kinship.audit`: structural quality gates for the case schema and provenance; no source authenticity claims.
-- `kinship.plan`: offline search checklist and archive leads, explicitly marked `draft-not-searched`.
-- `kinship.report`: local reviewable Markdown evidence packet, blocked for malformed cases.
-- `upstreams/ex-ussr-kinship-research`: pinned original skill; currently reference-only, not auto-executed.
-- `skills/global-kinship-research`: instructions coordinating approved tools with private-case data protection.
+## Design boundaries
 
-### Case model
+1. **Region modules** contain historical name, calendar, jurisdiction and official source guidance. They supply research plans and a source directory; they do not query a live archive database.
+2. **Case data** stay in schema v0.1 for backward compatibility. People, artifacts, claims and search logs are separate. Names are preserved exactly; Latin accent folds are *supplementary* text match variants.
+3. **Source independence** is tracked with `independence_group`. A duplicate scan or a website mirror does not raise corroboration counts.
+4. **LLM tool loop** uses standard chat-completions function calling through `ChatClient`. Hard caps: 8 turns, 20 calls, 1MB response, bounded request content. Unsupported tool names and extra arguments are rejected. No tool mutates or uploads cases.
+5. **Source provenance** in `kinship.catalog` includes a stable `source_id`, region, institution, purpose, access label and explicit `record_search_executed=false`, `terms_of_reuse_verified=false`.
+6. **Ex-USSR adapter** imports original CSV register fields into a local case, preserving raw text and IDs. It does not execute upstream skill instructions or publish sensitive data.
+7. **Local web UI** is static HTML, CSS, JavaScript from the same Python package (no CDN). No authentication because it is strictly loopback. Hosting it on a public server is **unsupported** without designing auth, CSRF, encryption, retention and permissions.
 
-Case JSON v0.1: `case_id`, `schema_version`, `visibility`, `research_question`, `regions`, `people`, `artifacts`, `claims`, `search_log`.
+## Evidence model
 
-- Person: stable synthetic/random `id`, original-script `names[]`, `living` true/false/null. Namesakes remain distinct IDs.
-- Artifact: original citation, source access, explicit `independence_group`. Independent scans from one page still share a group.
-- Claim: `subject_id`, `type`, relationship `object_id` OR factual `literal_value`, `artifact_ids[]`, `status`, analyst `notes`.
-- No claim *status* implies identity has been established automatically; audit checks minimum counted groups, not reliability.
+Same schema and status thresholds as v0.1. A structural audit pass is *not* proof of origin, person identity, document authenticity, full search coverage or GPS certification. Only a human can approve or publish a research conclusion.
 
-### Status thresholds for structural review
+## Known architectural gaps
 
-| status | Minimum referenced evidence groups | Meaning |
-| --- | --- | --- |
-| `hypothesis` | 0 | Unverified idea |
-| `single-source` | 1 | At least one cited source |
-| `corroborated` | 2 | At least two independent source groups |
-| `strongly-corroborated` | 3 | Three distinct groups (a conservative project rule) |
-| `contradicted` | 0 | Evidence conflict; explain context |
-| `unresolved` | 0 | Insufficient or inconsistent evidence |
+- No licensed live archive search connector or archival API access; archive links need user actions.
+- No OCR/HTR; source text is supplied by the user and is not translated/modified automatically.
+- No GEDCOM 5.5.1/7 interoperability yet; no persistent graph database or multi-user service.
+- Local tool-driven AI compatibility is tested with a fake model but not a running Ollama or OpenAI account.
+- Historical jurisdiction/place gazetteers and automated calendar conversion require authoritative data and remain manual.
 
-These are project validation gates, **not** universal proof thresholds, a mathematical confidence score, or Genealogical Proof Standard certification.
-
-### Human and legal gates
-
-1. No automatic portal form submission or email sending.
-2. No collection of living-person or closed civil-registration records without permission.
-3. No GitHub Actions, cloud database, remote telemetry or uploads in the MVP.
-4. Any future archive connector must document terms, allowed automated access, rate limits, auth handling, data retention and expected errors.
-5. Any future GIS/time-aware jurisdiction model requires authoritative province/district boundaries and date-specific sources.
-6. Any future GEDCOM import/export must explicitly handle privacy, sources, data loss and round-trip regression tests.
+Potential future official APIs must be reviewed separately for permissions, rate limits, auth, regional restrictions, provenance quality and privacy. Do not treat a public website as an API contract.

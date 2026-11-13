@@ -32,6 +32,22 @@ class CLITests(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertEqual(json.loads(p.stdout)["status"], "draft-not-searched")
 
+    def test_cli_sources(self):
+        p = self.invoke("sources", "--region", "china")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertFalse(json.loads(p.stdout)["archive_search_executed"])
+        self.assertIn("Shanghai Library", p.stdout)
+
+    def test_cli_local_search(self):
+        p = self.invoke("search", CASE, "Nguyen Van An")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn('"id": "P1"', p.stdout)
+
+    def test_cli_agent_offline(self):
+        p = self.invoke("agent", CASE, "--region", "vietnam", "--question", "What next?")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual(json.loads(p.stdout)["mode"], "guided-offline")
+
     def test_cli_report(self):
         with tempfile.TemporaryDirectory() as folder:
             dest = Path(folder) / "case-report.md"

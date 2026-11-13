@@ -6,11 +6,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from kinship.names import query_variants
 from kinship.plan import make_search_plan
 from kinship.profiles import get_profile, REGISTRY
+from kinship.catalog import list_archive_leads
 
 
 class RegionTests(unittest.TestCase):
-    def test_three_regions(self):
-        self.assertEqual(set(REGISTRY), {"ex-ussr", "vietnam", "korea"})
+    def test_asia_regions_available(self):
+        self.assertEqual(set(REGISTRY), {"ex-ussr", "vietnam", "korea", "china", "japan", "taiwan", "philippines", "thailand", "indonesia", "malaysia", "india"})
+
+    def test_all_source_catalogs_have_https_and_manual_access(self):
+        for region in REGISTRY:
+            leads = list_archive_leads(region)
+            self.assertGreaterEqual(len(leads), 1, region)
+            self.assertTrue(all(x["url"].startswith("https://") for x in leads))
+            self.assertTrue(all(x["record_search_executed"] is False for x in leads))
+            self.assertTrue(all(x["terms_of_reuse_verified"] is False for x in leads))
 
     def test_unknown_region(self):
         with self.assertRaises(ValueError):

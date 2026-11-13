@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Local-first family history research with traceable evidence and regional archive leads.">
+  <title>Global Kinship — Research Workbench</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to research workbench</a>
+<div class="shell">
+  <aside class="sidebar" aria-label="Workbench navigation">
+    <a class="brand" href="/" aria-label="Global Kinship home"><span class="brand-mark">⟡</span><span><strong>global kinship</strong><small>research workbench</small></span></a>
+    <div class="sidebar-divider"></div>
+    <div class="nav-label">WORKSPACE</div>
+    <nav class="nav" aria-label="Sections">
+      <button class="nav-button active" data-view="explore" aria-current="page"><span class="nav-icon">⌕</span> Explore case</button>
+      <button class="nav-button" data-view="sources"><span class="nav-icon">▤</span> Archive directory</button>
+      <button class="nav-button" data-view="research"><span class="nav-icon">◇</span> Research assistant</button>
+      <button class="nav-button" data-view="evidence"><span class="nav-icon">◫</span> Evidence review</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="privacy-note"><span class="privacy-dot"></span><div><strong>Private by design</strong><p>Cases stay in your browser memory and local server. No database or automatic archive scraping.</p></div></div>
+      <a class="sidebar-link" href="https://github.com/taiduc1302/global-kinship-research" target="_blank" rel="noopener noreferrer">Project on GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </aside>
+  <div class="content-column">
+    <header class="topbar">
+      <div class="breadcrumbs"><span>Workspace</span><span class="slash">/</span><strong id="breadcrumb">Explore case</strong></div>
+      <div class="top-actions"><span class="mode-pill" id="model-status">Checking agent…</span><span class="local-pill"><span aria-hidden="true">●</span> Local session</span></div>
+    </header>
+    <main id="main">
+      <section id="view-explore" class="view" aria-labelledby="explore-title">
+        <div class="hero">
+          <span class="eyebrow">GENEALOGY, WITH EVIDENCE</span>
+          <h1 id="explore-title">Every family story deserves <em>a source.</em></h1>
+          <p>Search individuals and records in a local case. Trace each relationship back to cited evidence—without confusing a promising lead with a proven fact.</p>
+          <div class="case-controls">
+            <label class="upload" for="case-file"><span aria-hidden="true">↥</span> Open case JSON <input type="file" id="case-file" accept=".json,application/json"></label>
+            <button id="load-demo" class="button button-soft" type="button">Reset to sample case</button>
+            <span class="case-tag" id="case-tag">Loading synthetic example…</span>
+          </div>
+        </div>
+        <div class="stat-grid" aria-label="Case summary">
+          <div class="stat"><span>Individuals</span><strong id="stat-people">—</strong><small>Distinct person IDs</small></div>
+          <div class="stat"><span>Source records</span><strong id="stat-artifacts">—</strong><small>Provided, not verified</small></div>
+          <div class="stat"><span>Research claims</span><strong id="stat-claims">—</strong><small>All require review</small></div>
+          <div class="stat"><span>Source groups</span><strong id="stat-groups">—</strong><small>Independent origins</small></div>
+        </div>
+        <div class="workspace-grid">
+          <section class="panel results-panel" aria-labelledby="case-search-title">
+            <div class="panel-heading"><div><span class="eyebrow">EXPLORE YOUR CASE</span><h2 id="case-search-title">Find people & evidence</h2></div><span class="panel-kicker" id="results-count">Sample records</span></div>
+            <form id="search-form" class="search-form">
+              <label class="sr-only" for="search-query">Name, record, or citation</label>
+              <input id="search-query" type="search" placeholder="Name, place, record, or citation…" autocomplete="off" maxlength="200">
+              <button type="submit" class="button button-primary">Search</button>
+            </form>
+            <div class="filters" role="group" aria-label="Record type filter">
+              <button class="filter active" data-kind="all" type="button" aria-pressed="true">All</button>
+              <button class="filter" data-kind="people" type="button" aria-pressed="false">People</button>
+              <button class="filter" data-kind="artifacts" type="button" aria-pressed="false">Sources</button>
+              <button class="filter" data-kind="claims" type="button" aria-pressed="false">Claims</button>
+            </div>
+            <div id="results-list" class="result-list" aria-live="polite"></div>
+          </section>
+          <section class="panel detail-panel" aria-labelledby="detail-heading">
+            <div class="panel-heading"><div><span class="eyebrow">RECORD INSPECTOR</span><h2 id="detail-heading">Record details</h2></div><span class="inspector-icon" aria-hidden="true">↗</span></div>
+            <div id="detail-body"><div class="empty"><div class="empty-symbol">⌁</div><h3>Select a record</h3><p>See original names, claims, citations, and the independent-source group.</p></div></div>
+          </section>
+        </div>
+        <div class="notice-strip"><span class="notice-icon" aria-hidden="true">i</span><span>Sample names and citations are entirely fictional. Text matches do not prove identity; a passing audit does not authenticate archival records.</span></div>
+      </section>
+
+      <section id="view-sources" class="view" hidden aria-labelledby="sources-title">
+        <div class="section-intro"><span class="eyebrow">RESEARCH DESTINATIONS</span><h1 id="sources-title">Regional archive directory<span class="accent-dot">.</span></h1><p>Curated official portals and research leads. Opening a portal is not the same as searching its records; verify each institution’s access rules and terms.</p></div>
+        <div class="panel source-browser">
+          <div class="panel-heading"><div><h2>Browse source institutions</h2><p>Choose a region to see the current research leads.</p></div><span class="panel-kicker" id="source-count"></span></div>
+          <label class="field-label" for="region-select">Region / historical context</label>
+          <select id="region-select" class="select"></select>
+          <div id="source-list" class="source-list" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="view-research" class="view" hidden aria-labelledby="research-title">
+        <div class="section-intro"><span class="eyebrow">ASSISTED WORKFLOW</span><h1 id="research-title">Research assistant<span class="accent-dot">.</span></h1><p>Build a plan, check your existing evidence, and identify the next useful archive. The agent cannot approve kinship or contact archives.</p></div>
+        <div class="research-grid">
+          <section class="panel" aria-labelledby="ask-title"><div class="panel-heading"><div><h2 id="ask-title">Ask a research question</h2><p>The assistant uses region-specific research tools.</p></div></div>
+            <form id="agent-form" class="agent-form">
+              <label class="field-label" for="agent-region">Research region</label><select id="agent-region" class="select"></select>
+              <label class="field-label" for="agent-question">What would you like to investigate?</label>
+              <textarea id="agent-question" rows="5" maxlength="2000" required placeholder="Which evidence would support a proposed parent-child relationship?">What evidence could support the fictional parent-child relationship in this case?</textarea>
+              <div id="remote-consent-wrap" class="remote-consent" hidden><label><input type="checkbox" id="remote-consent"> I understand this synthetic case and question will be sent to the configured external model.</label></div>
+              <button class="button button-primary" id="agent-submit" type="submit">Prepare research route <span aria-hidden="true">→</span></button>
+            </form>
+          </section>
+          <section class="panel agent-result-panel" aria-labelledby="agent-response-title"><div class="panel-heading"><div><span class="eyebrow">RESEARCH NOTES</span><h2 id="agent-response-title">Agent response</h2></div><span class="panel-kicker" id="agent-run-state">Not started</span></div>
+            <div id="agent-result" class="agent-result"><div class="empty"><div class="empty-symbol">◇</div><h3>Evidence, not guesses.</h3><p>Send a research question to get an offline guide or a model-assisted response if you configured one.</p></div></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-evidence" class="view" hidden aria-labelledby="evidence-title">
+        <div class="section-intro"><span class="eyebrow">HUMAN REVIEW REQUIRED</span><h1 id="evidence-title">Evidence integrity<span class="accent-dot">.</span></h1><p>Structural checks reveal missing citations, duplicated evidence and invalid family links. They do not prove the historical truth of a record.</p></div>
+        <div class="evidence-grid"><section class="panel"><div class="panel-heading"><div><h2>Audit findings</h2><p>Checks run against the currently open case.</p></div><button type="button" id="run-audit" class="button button-soft">Run again</button></div><div id="audit-result" aria-live="polite"></div></section>
+          <section class="panel"><div class="panel-heading"><div><h2>Cited claims</h2><p>Click any claim to see related records.</p></div></div><div id="claims-list" class="claims-list"></div></section></div>
+      </section>
+    </main>
+    <footer class="footer"><span>Global Kinship · Evidence-first research</span><span>Local prototype · no record scraping · no automatic approvals</span></footer>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

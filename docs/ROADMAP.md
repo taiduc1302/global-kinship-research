@@ -1,52 +1,54 @@
-# Roadmap with deliverable gates
+# Development roadmap and exit gates
 
-Owner: Global Kinship Research contributors. Updated: 2026-11-12. Each phase is a candidate scope, not a release promise.
+Owner: Global Kinship Research maintainers. Updated: 2026-11-12. **No issue or agent may approve genealogy evidence or archive access on behalf of a researcher.**
 
-## P0 — Baseline complete in local starter (v0.1)
+## v0.1 — Evidence core (complete)
 
-- [x] Original Ex-USSR source identified and its MIT license checked.
-- [x] Version-pinned Ex-USSR Git submodule, preserving upstream history separately.
-- [x] Evidence-source independence check, broken foreign keys, duplicates, parent cycle, living-person publication guard.
-- [x] Vietnam and Korea research guides with verified institutional links, manual-only labeling.
-- [x] Synthetic case, offline CLI, smoke/regression tests.
-- [x] Agent Skill and explicit privacy policy.
-- [ ] Publish on `taiduc1302/global-kinship-research` (GitHub repo creation not exposed by current connector).
-- [ ] Make an independent GitHub fork of Ex-USSR under `taiduc1302` if desired (requires GitHub fork operation).
+- [x] Pinned original Ex-USSR project as attributed Git submodule, no silent code copying.
+- [x] Separate source artifacts, claims, people and independence groups.
+- [x] Local CLI audit/report and synthetic fixture.
+- [x] Three initial research guides: Ex-USSR, Vietnam, Korea.
 
-## P1 — Real research method without leaking private data
+## v0.2 — Integrated local workbench (implemented; pending user test on Windows)
 
-- [ ] Define machine-readable archive source manifest: `source_id`, institution, jurisdiction, historical years, catalog URL, access, terms, last_verified.
-- [ ] Ex-USSR integration test between original artifact/claim CSV registers and our JSON case schema; preserve original IDs, independence groups, and authorship.
-- [ ] Vietnam record family: Hán-Nôm catalog identifiers, genealogical book generations, lunar date without speculative conversions, source scans with lawful access.
-- [ ] Korea record family: jokbo clan/bon-gwan, Hangul/Hanja forms, lunisolar dates, source citations.
-- [ ] Archive search log: attempted queries, failed searches and inaccessible-only records as first-class entries.
-- [ ] Sample archive request templates, never send without review and explicit user confirmation.
-- [ ] 30+ independent synthetic scenario tests and security/privacy review.
+- [x] Read-only AI tool dispatcher with 8-turn/20-tool limits and model transport opt-in.
+- [x] Offline guide mode and optional localhost OpenAI-compatible chat-completions function calling.
+- [x] Strict privacy gate for external model: synthetic only, explicit opt-in.
+- [x] Search within local case and review people, records and claims.
+- [x] Responsive static browser UI served on localhost with upload/reset/demo, research assistant, sources and audit views.
+- [x] Expand country profiles to 11: Ex-USSR, Vietnam, Korea, China, Japan, Taiwan, Philippines, Thailand, Indonesia, Malaysia, India.
+- [x] Keep official archive leads separately labeled **manual-only** and **not searched**.
+- [x] Conservative Ex-USSR CSV importer retaining raw columns, negative search logs and provenance.
+- [x] Extend Python unit/HTTP/agent and browser-smoke tests using synthetic records.
+- [ ] Run double-click Windows launcher on a real Windows workstation (not covered by Linux container).
+- [ ] Validate real local Ollama tool calls with selected model (fake client covered now; no live model endpoint was used).
 
-**P1 gate:** 0 personally identifying records in public repository; 0 fabricated citations; audit refuses two copies of the same source as independent proof. No automatic identity merges.
+**v0.2 exit gate:** local Python suite passes, desktop/mobile browser interaction passes, no private data in repo, no production claim of live archive searching, no mandatory GitHub Actions.
 
-## P2 — Interoperability and family tree
+## v0.3 — Real source-aware research connectors
 
-- [ ] GEDCOM 5.5.1/7 import-export research with documented lossiness and encoding rules.
-- [ ] Cross-language source/transliteration review UI; source text cannot be silently replaced.
-- [ ] Local static read-only family graph rendering with provenance visible for each edge.
-- [ ] Optional self-hosted private data store, permission model, encryption and backup testing.
-- [ ] Evaluate MIT/Apache-compatible upstream apps (Roots of Vietnam / FamilyRoots) for selected components, not a wholesale code merge.
+- [ ] Review one legally authorized archive API/IIIF catalog per priority region; document ToS, authentication, fees, privacy and rate limits.
+- [ ] Implement a read-only connector that records exact query, time, authority, result metadata and a reproducible source ID. **A web page link is not a query result.**
+- [ ] Offline fixtures for pagination, duplicate images, conflicting records, partial results, downtime, permission failures and language variations.
+- [ ] Consent gate before retrieving any potentially protected records and review of cross-border data transfers.
+- [ ] Manual side-by-side original/transcription/translation/researcher correction view.
+- [ ] Human-confirmed notes to convert leads to citations; never automatic match or approval.
 
-**P2 gate:** No evidence or privacy metadata lost on import/export; private profiles excluded from public outputs.
+## v0.4 — Family tree and interoperability
 
-## P3 — Asia modules by evidence availability
+- [ ] GEDCOM 5.5.1/7 import/export with round-trip tests and source references.
+- [ ] Local read-only relationship graph showing provenance per edge, with contradictions and unknowns.
+- [ ] Private encrypted persistence and backups after explicit threat model and authentication design.
+- [ ] Review selected MIT/Apache 2.0 parts of Roots of Vietnam / FamilyRoots; preserve attributions and license notices.
 
-- [ ] China (jiapu/zupu), Japan (koseki and access controls), other Southeast Asia.
-- [ ] Re-evaluate official databases and licenses at implementation time.
-- [ ] Historical jurisdiction lookup and controlled schema evolution.
-- [ ] Country experts review source use and historical/cultural handling.
+## v0.5 — Region depth / production readiness
 
-**P3 gate:** Every country module has provenance, access restrictions, and at least 10 culturally specific tests.
+- [ ] Historical jurisdiction maps and date-aware archive custodians.
+- [ ] Deeper country-specific family naming and calendar conversion reviews by specialists.
+- [ ] Proper search coverage for Southeast Asia and migrations (not simply lists of countries).
+- [ ] External security assessment, auth, audit logs, deletion and access control before hosting any real family cases.
+- [ ] Full Windows/macOS/Linux packaging, backup/recovery and accessibility audits.
 
-## Contribution workflow without GitHub Actions
+## Contribution workflow, without GitHub Actions
 
-1. `python -m unittest discover -s tests -v`
-2. `python -m kinship audit examples/synthetic-vietnam-korea-case.json` after `PYTHONPATH=src` or editable install.
-3. Human reviewer verifies all new links, attribution, safety, translations and calendar assumptions.
-4. Attach local test output to PR; do not post real family documents.
+Run `PYTHONPATH=src python -m unittest discover -s tests -v` and optionally `node --check src/kinship/static/app.js`. For UI changes run a local browser smoke and note tested viewport sizes; include output, privacy impact and license changes in PR description. Never upload real cases into GitHub. If a test fails, no merge.
