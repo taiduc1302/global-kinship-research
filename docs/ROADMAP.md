@@ -25,7 +25,16 @@ Owner: Global Kinship Research maintainers. Updated: 2026-11-12. **No issue or a
 
 **v0.2 exit gate:** local Python suite passes, desktop/mobile browser interaction passes, no private data in repo, no production claim of live archive searching, no mandatory GitHub Actions.
 
-## v0.3 — Real source-aware research connectors
+## v0.3 — GEDCOM import and local relationship explorer (implemented; Windows verification pending)
+
+- [x] Add bounded UTF-8 GEDCOM 5.5.1 **import** with event-level sources and original ID traceability.
+- [x] Keep imported family edges at `hypothesis` and group citations by original GEDCOM source pointer.
+- [x] Add read-only relation graph for CLI, agent and local browser; do not infer biological parentage.
+- [x] Add browser GEDCOM picker and one-generation responsive family-connections view.
+- [x] Add synthetic regression tests for Unicode names, broken pointers, cycles, duplicate source pages, privacy and unsupported format versions.
+- [ ] Run on physical Windows workstation and check imported output with independently validated GEDCOM samples.
+
+## Planned — Real source-aware research connectors
 
 - [ ] Review one legally authorized archive API/IIIF catalog per priority region; document ToS, authentication, fees, privacy and rate limits.
 - [ ] Implement a read-only connector that records exact query, time, authority, result metadata and a reproducible source ID. **A web page link is not a query result.**
@@ -34,10 +43,12 @@ Owner: Global Kinship Research maintainers. Updated: 2026-11-12. **No issue or a
 - [ ] Manual side-by-side original/transcription/translation/researcher correction view.
 - [ ] Human-confirmed notes to convert leads to citations; never automatic match or approval.
 
-## v0.4 — Family tree and interoperability
+## Planned — Family tree and interoperability
 
-- [ ] GEDCOM 5.5.1/7 import/export with round-trip tests and source references.
-- [ ] Local read-only relationship graph showing provenance per edge, with contradictions and unknowns.
+- [x] Bounded GEDCOM 5.5.1 import subset; source references retained with limitations.
+- [ ] GEDCOM 5.5.1 export and broader GEDCOM 7 import/export with round-trip tests and source references.
+- [x] Local read-only one-generation relationship explorer with provenance per claim.
+- [ ] Complete multi-generation family visualization with contradictions and unknowns.
 - [ ] Private encrypted persistence and backups after explicit threat model and authentication design.
 - [ ] Review selected MIT/Apache 2.0 parts of Roots of Vietnam / FamilyRoots; preserve attributions and license notices.
 

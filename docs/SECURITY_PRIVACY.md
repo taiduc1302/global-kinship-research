@@ -1,6 +1,10 @@
-# Security and privacy — v0.2
+# Security and privacy — v0.3
 
 **The repository is public. Cases are private by default.** Never include identifying data of living people, recent registrations, account details, protected IDs, addresses, family photos, scans, GEDCOM files or third-party credentials in the repository, issues, branches or screenshots.
+
+## GEDCOM import guardrails
+
+Only UTF-8/ASCII GEDCOM 5.5.1 local text import is enabled. The server stores no GEDCOM uploads. The resulting case remains private, and all imported family relationships remain `hypothesis`. Dates are not used to assume death. Addresses, contact data and media are not copied into the case. Unsupported GEDCOM and invalid pointers fail closed. Browser transfer is loopback-only, not an external upload. Do not place real GEDCOM or case files in this public repository.
 
 ## Default processing
 

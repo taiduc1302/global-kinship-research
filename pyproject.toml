@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "global-kinship-research"
-version = "0.2.0"
+version = "0.3.0"
 description = "Evidence-first local genealogy workbench with regional tools and opt-in AI"
 requires-python = ">=3.10"
 authors = [{name = "Global Kinship Research contributors"}]

@@ -1,5 +1,9 @@
 # v0.2 quality report — 2026-11-12
 
+## v0.3 incremental QA scope
+
+The GEDCOM importer and relationship graph were exercised with synthetic files: non-Latin names, duplicate pointers, cycles, charset/version failures, missing sources, privacy, absent names, oversized input, and dependent source citations. The new `family.js` also passed JavaScript parser validation. Previous v0.2 browser screenshots should **not** be represented as v0.3 screenshots; physical Windows and real-world files still require validation.
+
 ## Automated tests
 
 - Python standard-library `unittest` suite: evidence audit, region guides, identity-safe name search, local case search, strict source independence, Ex-USSR CSV importer, model tool dispatcher with fake client, remote-privacy restrictions, loopback web API, content type, Host/Origin checks, static UI and CSP.
