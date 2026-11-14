@@ -37,6 +37,7 @@ These tests are narrower than a full v0.3 regression; avoid presenting them as a
 - Ran a **component-level** Chromium smoke using a simulated `/api/graph` response, at **1440×900** and **390×844**. Vietnamese, Korean and Cyrillic name rendering, family navigation, hypothetical links, claim IDs and independent-source group labels worked without uncaught JavaScript errors.
 - Reproduced a race where an old family graph request replaced a newer case in the UI; fixed with a load-generation gate and verified reversed response completion order now keeps the current case.
 - Added an **optional** reproducible `python scripts/browser_smoke_family.py` for component smoke (requires Playwright and Chromium, independent of paid GitHub Actions).
+- Separately executed the byte-identical v0.3 `src/kinship/graph.py` (Git blob `40ff580e79e48fcd6096e9d4a3522582faad7b2a`) against the synthetic core fixture: verified 3 distinct people, 1 relationship, 2 independent source groups, no external search, and rejection of false corroboration from duplicate scans.
 - Added new `tests/test_web.py` cases for the GEDCOM-import HTTP endpoint, graph roundtrip and rejection of an unsupported GEDCOM version. These new HTTP tests **have not yet run together with the full v0.3 suite** in this environment.
 - Inspected the highest-risk v0.3 files and found no obvious hard-coded API keys/private keys in that selected set. This is **not** a comprehensive security assessment. Confirmed no GitHub Actions workflow files and original ex-USSR submodule pin is retained.
 
