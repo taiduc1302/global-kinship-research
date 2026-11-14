@@ -8,6 +8,7 @@ const newEl = (tag, className, label) => {
 };
 let graph = null;
 let selected = '';
+let loadGeneration = 0; // Ignore responses for cases replaced while a request was in flight.
 const ids = new Map();
 
 function relativeCard(person, link) {
@@ -74,6 +75,8 @@ function drawFocus() {
 }
 
 document.addEventListener('kinship-case-loaded', async (event) => {
+  const requestGeneration = ++loadGeneration;
+  graph = null;
   const container = el('family-map');
   container.replaceChildren(newEl('p', 'family-empty', 'Loading local relationships…'));
   try {
@@ -82,6 +85,7 @@ document.addEventListener('kinship-case-loaded', async (event) => {
       body: JSON.stringify({case: event.detail.case})
     });
     const data = await response.json();
+    if (requestGeneration !== loadGeneration) return;
     if (!response.ok) throw new Error(data.error || 'Unable to inspect relationships');
     graph = data;
     ids.clear();
@@ -96,6 +100,7 @@ document.addEventListener('kinship-case-loaded', async (event) => {
     focus.value = selected;
     drawFocus();
   } catch (error) {
+    if (requestGeneration !== loadGeneration) return;
     graph = null;
     container.replaceChildren(newEl('p', 'family-empty', String(error.message)));
   }
