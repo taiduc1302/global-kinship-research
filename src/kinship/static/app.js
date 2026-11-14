@@ -88,6 +88,7 @@ async function useCase(value, label) {
   clear($('detail-body'));
   $('detail-body').append(make('div', 'empty', 'Choose a record on the left to inspect its citations and source group.'));
   renderEvidence();
+  document.dispatchEvent(new CustomEvent('kinship-case-loaded', {detail: {case: value}}));
 }
 function kindSymbol(kind) { return kind === 'people' ? '◉' : kind === 'artifacts' ? '▤' : '◇'; }
 function renderResults() {
@@ -241,6 +242,18 @@ async function init() {
       const json = JSON.parse(await file.text());
       await useCase(json, 'Local case'); notify('Loaded into browser memory only. Nothing saved to disk.');
     } catch (err) { notify(err.message); } finally { e.target.value = ''; }
+  });
+  $('gedcom-file').addEventListener('change', async event => {
+    const file = event.target.files?.[0]; if (!file) return;
+    try {
+      if (file.size > 512000) throw new Error('GEDCOM import limit is 512 KB');
+      const text = new TextDecoder('utf-8', {fatal: true}).decode(await file.arrayBuffer());
+      const parsed = await api('/api/import-gedcom', {gedcom: text, region: state.region,
+        case_id: 'local-gedcom', question: 'Review the evidence for relationships in this GEDCOM family file'});
+      await useCase(parsed.case, 'Private GEDCOM import');
+      notify('Imported family links as hypotheses; verify each original source.');
+    } catch (error) { notify(error.message); }
+    finally { event.target.value = ''; }
   });
   $('load-demo').addEventListener('click', () => resetDemo().catch(e => notify(e.message)));
   $('region-select').addEventListener('change', () => refreshSources().catch(e => notify(e.message)));

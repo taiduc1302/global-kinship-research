@@ -7,16 +7,20 @@ from urllib.parse import parse_qs, urlsplit
 import json
 
 from kinship.agent import OpenAICompatibleClient, ResearchAgent
+from kinship.gedcom import import_gedcom
+from kinship.graph import relationship_graph
 from kinship.audit import audit_case
 from kinship.catalog import list_archive_leads
 from kinship.plan import make_search_plan
 from kinship.profiles import REGISTRY, get_profile
 from kinship.research import artifact_detail, case_summary, person_detail, search_case
 
-MAX_BODY = 512_000
+MAX_BODY = 1_200_000  # Bounded for UTF-8 GEDCOM text inside JSON
 STATIC = {"/": ("index.html", "text/html; charset=utf-8"),
           "/app.js": ("app.js", "application/javascript; charset=utf-8"),
-          "/styles.css": ("styles.css", "text/css; charset=utf-8")}
+          "/styles.css": ("styles.css", "text/css; charset=utf-8"),
+          "/family.js": ("family.js", "application/javascript; charset=utf-8"),
+          "/family.css": ("family.css", "text/css; charset=utf-8")}
 
 
 class Workbench(ThreadingHTTPServer):
@@ -28,7 +32,7 @@ class Workbench(ThreadingHTTPServer):
 
 
 class WorkbenchHandler(BaseHTTPRequestHandler):
-    server_version = "KinshipWorkbench/0.2"
+    server_version = "KinshipWorkbench/0.3"
 
     def log_message(self, fmt, *args):
         # Never log path queries, user content, payloads or model transcripts.
@@ -115,6 +119,13 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
                 result = audit_case(payload["case"]).as_dict()
             elif path == "/api/search":
                 result = search_case(payload["case"], payload["query"], kind=payload.get("kind", "all"))
+            elif path == "/api/graph":
+                result = relationship_graph(payload["case"])
+            elif path == "/api/import-gedcom":
+                case = import_gedcom(payload["gedcom"], case_id=payload.get("case_id", "local-gedcom"),
+                                     question=payload.get("question", "Review imported family claims"),
+                                     region=payload.get("region", "vietnam"))
+                result = {"case": case, "notice": "Private, user-supplied GEDCOM; family links remain hypotheses"}
             elif path == "/api/person":
                 result = person_detail(payload["case"], payload["person_id"])
             elif path == "/api/artifact":

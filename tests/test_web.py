@@ -77,6 +77,31 @@ class WebServerTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(data['mode'], 'guided-offline')
 
+    def test_gedcom_import_and_relation_graph_roundtrip(self):
+        path = Path(__file__).resolve().parents[1] / 'examples' / 'synthetic-gedcom-551.ged'
+        text = path.read_text(encoding='utf-8')
+        status, imported, _ = self.req('/api/import-gedcom', {
+            'gedcom': text, 'region': 'vietnam', 'case_id': 'synthetic-http',
+            'question': 'Review family evidence'
+        })
+        self.assertEqual(status, 200, imported)
+        case = imported['case']
+        self.assertEqual(case['visibility'], 'private')
+        self.assertEqual(len(case['people']), 3)
+        status, graph, _ = self.req('/api/graph', {'case': case})
+        self.assertEqual(status, 200, graph)
+        self.assertEqual(len(graph['nodes']), 3)
+        self.assertEqual(len(graph['edges']), 3)
+        self.assertFalse(graph['external_search_executed'])
+        self.assertTrue(all(edge['status'] == 'hypothesis' for edge in graph['edges']))
+
+    def test_gedcom_endpoint_rejects_unknown_version(self):
+        path = Path(__file__).resolve().parents[1] / 'examples' / 'synthetic-gedcom-551.ged'
+        text = path.read_text(encoding='utf-8').replace('VERS 5.5.1', 'VERS 7.0')
+        status, response, _ = self.req('/api/import-gedcom', {'gedcom': text})
+        self.assertEqual(status, 400)
+        self.assertIn('Only GEDCOM 5.5.1', response['error'])
+
     def test_missing_header_or_origin_rejected(self):
         _, example, _ = self.req('/api/demo')
         status, data, _ = self.req('/api/audit', {'case':example['case']}, {'Origin':'https://evil.example'})

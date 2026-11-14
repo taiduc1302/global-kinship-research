@@ -1,13 +1,17 @@
-# Security and privacy — v0.2
+# Security and privacy — v0.3
 
 **The repository is public. Cases are private by default.** Never include identifying data of living people, recent registrations, account details, protected IDs, addresses, family photos, scans, GEDCOM files or third-party credentials in the repository, issues, branches or screenshots.
+
+## GEDCOM import guardrails
+
+Only UTF-8/ASCII GEDCOM 5.5.1 local text import is enabled. The server stores no GEDCOM uploads. The resulting case remains private, and all imported family relationships remain `hypothesis`. Dates are not used to assume death. Addresses, contact data and media are not copied into the case. Unsupported GEDCOM and invalid pointers fail closed. Browser transfer is loopback-only, not an external upload. Do not place real GEDCOM or case files in this public repository.
 
 ## Default processing
 
 - UI is served solely from `127.0.0.1` using a local Python process; no remote hosting or database.
 - Local case JSON is held in browser memory; sent to the loopback service on explicit local API operations; not written by the server.
 - No telemetry, analytics, cookies, CDN, auto-search, emails, or autonomous model execution.
-- Request body max 512KB; content-type JSON only, Host and Origin gates; CSP, no-store, no-referrer, X-Frame-Options, safe DOM text insertion and HTTPS-only external links.
+- GEDCOM text max 512,000 UTF-8 bytes, browser case file max 512,000 bytes, and JSON HTTP request body max 1,200,000 bytes (for escaped GEDCOM text); content-type JSON only, Host and Origin gates; CSP, no-store, no-referrer, X-Frame-Options, safe DOM text insertion and HTTPS-only external links.
 - **Not a hardened multi-user app:** anyone with access to the user's browser/computer can still see their currently open case. Do not expose the port to the network, forward it over a tunnel, or deploy this server on a remote host without a complete threat model and authentication.
 - `.gitignore` reduces accidents but is not a privacy boundary. Store real family data outside the public source tree and use encrypted devices/backup.
 
