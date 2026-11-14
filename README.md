@@ -91,6 +91,7 @@ See [GEDCOM import limits](docs/GEDCOM_551.md). Do not commit imported files or 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
 node --check src/kinship/static/app.js
+python scripts/browser_smoke_family.py      # optional: Playwright + Chromium, mocked graph API
 node --check src/kinship/static/family.js
 ```
 
