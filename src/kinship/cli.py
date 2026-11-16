@@ -27,6 +27,19 @@ def _output(value: object) -> None:
     print(json.dumps(value, ensure_ascii=False, indent=2))
 
 
+def _private_output_path(destination: str) -> Path:
+    """Keep sensitive exports outside a public checkout, or under ignored folders."""
+    target = Path(destination).expanduser()
+    root = Path(__file__).resolve().parents[2]
+    if (root / "pyproject.toml").is_file():
+        resolved = target.resolve()
+        if resolved.is_relative_to(root):
+            parts = resolved.relative_to(root).parts
+            if not parts or parts[0] not in {"private", "cases"}:
+                raise ValueError("Refusing to save private data in a public repository folder; use private/, cases/, or an outside path")
+    return target
+
+
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="kinship", description="Local evidence workbench and opt-in tool-using agent")
     sub = p.add_subparsers(dest="command", required=True)
@@ -91,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if result.ok else 1
         elif args.command == "import-ex-ussr":
             case = import_ex_ussr_registers(args.register_dir, case_id=args.case_id, question=args.question)
-            path = Path(args.out)
+            path = _private_output_path(args.out)
             if path.exists():
                 raise ValueError("Refusing to overwrite an existing case")
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -106,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
             except UnicodeError as exc:
                 raise ValueError("GEDCOM input must use UTF-8; export from the original app first") from exc
             case = import_gedcom(source_text, case_id=args.case_id, question=args.question, region=args.region)
-            target = Path(args.out)
+            target = _private_output_path(args.out)
             if target.exists():
                 raise ValueError("Refusing to overwrite an existing case")
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -120,7 +133,9 @@ def main(argv: list[str] | None = None) -> int:
             case = _read_case(args.case_file)
             content = format_report(case, audit_case(case))
             if args.out:
-                path = Path(args.out)
+                path = _private_output_path(args.out)
+                if path.exists():
+                    raise ValueError("Refusing to overwrite an existing report")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(content, encoding="utf-8")
                 print(f"Saved: {path}")
