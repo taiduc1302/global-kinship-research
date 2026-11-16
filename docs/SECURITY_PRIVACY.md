@@ -15,6 +15,12 @@ Only UTF-8/ASCII GEDCOM 5.5.1 local text import is enabled. The server stores no
 - **Not a hardened multi-user app:** anyone with access to the user's browser/computer can still see their currently open case. Do not expose the port to the network, forward it over a tunnel, or deploy this server on a remote host without a complete threat model and authentication.
 - `.gitignore` reduces accidents but is not a privacy boundary. Store real family data outside the public source tree and use encrypted devices/backup.
 
+## CLI export placement
+
+- `import-gedcom`, `import-ex-ussr` and `report --out` reject output paths **inside this public source checkout** unless they resolve under the git-ignored `private/` or `cases/` directories. Outputs outside the repository remain allowed.
+- Imported cases and generated reports are never silently overwritten. Do not move these files into public example/documentation folders, and keep local backups encrypted.
+- This path guard reduces accidental Git commits, but it is not OS-level sandboxing or a substitute for filesystem permissions and human review. Standard output can still be redirected by the calling shell.
+
 ## AI model guardrails
 
 - Default agent uses **offline deterministic tools** and no LLM, so no billable requests or accidental external transfers.
