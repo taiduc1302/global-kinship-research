@@ -92,12 +92,13 @@ Run the offline release gate from the repository root (requires Python 3.10+ and
 
 ```bash
 python scripts/verify_release.py
-python scripts/verify_release.py --browser  # optional: Playwright + Chromium component smoke
+python scripts/verify_release.py --browser             # optional Chromium component smoke
+python scripts/verify_release.py --browser --browser-e2e  # UI + real local API via test bridge
 ```
 
 The gate runs all local Python tests, compiles Python, checks all JavaScript files with Node, and starts a **real loopback HTTP server** for a synthetic GEDCOM import/search/graph/agent/API security smoke. It returns a nonzero exit code and a machine-readable JSON summary if any required check fails. No GitHub Actions, paid CI, archive access or AI keys are needed. The optional browser component test uses a simulated graph API and is **not** a complete live-browser end-to-end test.
 
-> The release gate script itself was syntax-checked and exercised against the available v0.1 baseline: 31 Python tests passed; JavaScript and v0.3 HTTP checks correctly reported missing functionality. A full passing v0.3 gate is **not yet claimed**; see [docs/QA.md](docs/QA.md).
+> **v0.3 release verification (2026-11-16):** all 90 Python tests, JavaScript checks, 10 live localhost API steps, Chromium family-component smoke and desktop/mobile browser flow through a test transport bridge passed. Direct Chromium-to-localhost navigation was blocked by the hosted test environment. Windows launcher, real AI endpoints and external archive access remain untested; see [docs/QA.md](docs/QA.md).
 
 For targeted development checks:
 
