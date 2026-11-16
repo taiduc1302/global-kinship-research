@@ -87,6 +87,14 @@ class AgentTests(unittest.TestCase):
             )
         self.assertEqual(model.turn, 0)
 
+    def test_model_rejects_malformed_tool_call_shape(self):
+        class MalformedLocalModel:
+            is_remote = False
+            def complete(self, messages, tools):
+                return {"role": "assistant", "tool_calls": ["not-a-tool-dictionary"]}
+        with self.assertRaisesRegex(ValueError, "Invalid model tool call structure"):
+            ResearchAgent(CASE, "vietnam").run("Test malformed call", model=MalformedLocalModel())
+
     def test_endpoint_rejects_arbitrary_http_and_auth_in_url(self):
         with self.assertRaisesRegex(ValueError,'HTTPS'):
             OpenAICompatibleClient('test', 'http://example.com/v1/chat/completions')
