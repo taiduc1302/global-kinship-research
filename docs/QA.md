@@ -69,3 +69,16 @@ These tests are narrower than a full v0.3 regression; avoid presenting them as a
 - Found that CLI `--out` values for GEDCOM import, Ex-USSR registers and reports could target ordinary public-repository folders, creating an accidental-commit risk. Added `_private_output_path` guard: outputs within a source checkout must resolve under git-ignored `private/` or `cases/`, or be stored outside the checkout.
 - Reports now refuse to overwrite an existing file. Added `tests/test_cli.py` negative tests for public-folder paths and overwrite preservation.
 - Verified the path-selection algorithm in an isolated temporary project: public documentation folder blocked, `private/` and `cases/` accepted, outside path accepted. **The full exact-branch CLI tests are still pending**.
+
+## Final v0.3 release regression — 2026-11-16
+
+**Baseline:** Exact PR #1 Git tree at commit `24734dd9151c743658aa71eca5194349b3be2a04` was reconstructed from the connected GitHub source. All **59 regular files** were checked against their Git blob SHAs. The reconstructed Git tree, including the pinned Ex-USSR submodule gitlink, matched remote tree `3c9b494425f93bc1330bca183581f252b98d3738` exactly.
+
+- `python scripts/verify_release.py --browser` **PASSED** on reconstructed v0.3: 90/90 Python unit/HTTP/CLI/agent/GEDCOM tests; Python compilation; JavaScript syntax; 10 live loopback API scenarios; Chromium family-component smoke.
+- Added `scripts/browser_e2e_bridge.py`, tested against the **real local Python Workbench API** via browser fetch transport interception. It uses the shipped HTML/CSS/JS and synthetic files; desktop **1440×900** and mobile **390×844** both passed: search, record inspection, China archives, offline agent, evidence audit, GEDCOM import, family tree, reset, zero JS page errors, zero page overflow.
+- Added `--browser-e2e` option to the release verifier and ran `python scripts/verify_release.py --browser --browser-e2e`: **PASSED all five check groups**, including both viewports. This was run on the locally prepared feature tree immediately before the two test-only scripts were pushed to the feature branch.
+- GitHub Actions were not used. No live archive queries, personal GEDCOMs, external LLMs or credentials were used.
+
+**Environment caveat:** Hosted Chromium blocks direct localhost navigation, so UI requests were bridged to the *actual* Python loopback API using Python's urllib. This tests UI/API behavior but **not direct Chromium-to-localhost network transport**. Double-click Windows launcher, installed real LLM, actual third-party GEDCOM compatibility, live archive API and specialist security/accessibility audits are untested and remain post-merge limitations. A successful automated release check is not genealogical evidence validation or authorization for public hosting of family records.
+
+**Decision:** The non-Windows release gates for the local v0.3 feature are complete; merge of the reviewed PR may proceed, with the above limitations prominently documented.
