@@ -214,6 +214,9 @@ class ResearchAgent:
             requested = message.get("tool_calls") or []
             if not isinstance(requested, list):
                 raise ValueError("Invalid model tool_calls")
+            if any(not isinstance(item, dict) or not isinstance(item.get("function"), dict)
+                   for item in requested):
+                raise ValueError("Invalid model tool call structure")
             if not requested:
                 final = str(message.get("content") or "").strip()[:20_000]
                 break
