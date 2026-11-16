@@ -1,0 +1,30 @@
+0 HEAD
+1 SOUR GKR
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME Nguyễn Văn /An/
+1 SEX M
+1 BIRT
+2 DATE 4 FEB 1901
+2 PLAC Hà Nội
+2 SOUR @S1@
+3 PAGE Page 12
+1 DEAT Y
+0 @I2@ INDI
+1 NAME 김 /하늘/
+1 SEX F
+1 BIRT
+2 DATE 1905
+0 @I3@ INDI
+1 NAME Aleksandr /Petrov/
+0 @F1@ FAM
+1 HUSB @I1@
+1 WIFE @I2@
+1 CHIL @I3@
+1 SOUR @S1@
+0 @S1@ SOUR
+1 TITL Entirely fictional household register, volume 1
+0 TRLR

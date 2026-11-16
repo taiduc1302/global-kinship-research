@@ -53,6 +53,31 @@ class EvidenceAuditTests(unittest.TestCase):
         case["people"].append(copy.deepcopy(case["people"][0]))
         self.assertIn("people.duplicate", [f.code for f in audit_case(case).findings])
 
+    def test_large_ancestry_chain_is_iterative(self):
+        # 1,600 nodes exceed Python's ordinary recursive DFS depth.
+        # All rows are synthetic, without private family information.
+        import copy
+        size = 1600
+        case = fixture()
+        case["people"] = [
+            {"id": f"ST-{i}", "living": None,
+             "names": [{"original": f"Fictional person {i}"}]}
+            for i in range(size)
+        ]
+        case["claims"] = [
+            {"id": f"SC-{i}", "subject_id": f"ST-{i}",
+             "object_id": f"ST-{i + 1}", "type": "parent_of",
+             "status": "hypothesis", "artifact_ids": []}
+            for i in range(size - 1)
+        ]
+        self.assertTrue(audit_case(case).ok)
+        case["claims"].append({
+            "id": "SC-CYCLE", "subject_id": f"ST-{size - 1}",
+            "object_id": "ST-0", "type": "parent_of",
+            "status": "hypothesis", "artifact_ids": [],
+        })
+        self.assertIn("claim.parent_cycle", [f.code for f in audit_case(case).findings])
+
     def test_parent_cycle_detected(self):
         case = fixture()
         case["claims"].append({"id": "C3", "subject_id": "P2", "object_id": "P1", "type": "parent_of", "status": "hypothesis", "artifact_ids": []})

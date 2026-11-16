@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import json
 import os
+from importlib.resources import files
 from typing import Protocol
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from kinship.audit import audit_case
+from kinship.graph import relationship_graph
 from kinship.catalog import list_archive_leads
 from kinship.plan import make_search_plan
 from kinship.profiles import REGISTRY, get_profile
@@ -54,6 +56,7 @@ TOOLS = [
     _function("person_evidence", "View one person and cited claims; not identity confirmation", {"person_id": _s("existing person ID")}, ["person_id"]),
     _function("source_evidence", "View a supplied artifact, dependent copies and linked claims", {"artifact_id": _s("existing artifact ID")}, ["artifact_id"]),
     _function("audit_evidence", "Run deterministic evidence integrity checks", {}),
+    _function("relationship_graph", "Read family-link CLAIMS with status and source groups; never infer proof", {}),
 ]
 
 
@@ -141,7 +144,7 @@ class ResearchAgent:
             "list_regions": set(), "region_guide": {"region"},
             "archive_leads": {"region"}, "draft_search_plan": {"region", "name"},
             "search_local_case": {"query"}, "person_evidence": {"person_id"},
-            "source_evidence": {"artifact_id"}, "audit_evidence": set(),
+            "source_evidence": {"artifact_id"}, "audit_evidence": set(), "relationship_graph": set(),
         }
         if name not in allowed:
             raise ValueError("Tool is not allowed: " + name[:60])
@@ -162,6 +165,8 @@ class ResearchAgent:
             return person_detail(self.case, arguments["person_id"])
         if name == "source_evidence":
             return artifact_detail(self.case, arguments["artifact_id"])
+        if name == "relationship_graph":
+            return relationship_graph(self.case)
         return audit_case(self.case).as_dict()
 
     def run(self, question: str, model: ChatClient | None = None, *,
@@ -186,6 +191,12 @@ class ResearchAgent:
         if getattr(model, "is_remote", False):
             if self.case.get("visibility") != "synthetic":
                 raise ValueError("Remote models accept only synthetic demo cases; private and historical cases stay local")
+            # A user-controlled visibility label is not a privacy boundary.
+            # Permit only the exact, checked-in fictional demo; a case with
+            # real names must not become cloud-eligible by changing one field.
+            demo = json.loads(files("kinship").joinpath("static", "demo.json").read_text(encoding="utf-8"))
+            if self.case != demo:
+                raise ValueError("Remote models accept only the unmodified bundled synthetic demo case")
             if not remote_consent:
                 raise ValueError("External model transfer requires explicit per-request consent")
 
@@ -203,6 +214,9 @@ class ResearchAgent:
             requested = message.get("tool_calls") or []
             if not isinstance(requested, list):
                 raise ValueError("Invalid model tool_calls")
+            if any(not isinstance(item, dict) or not isinstance(item.get("function"), dict)
+                   for item in requested):
+                raise ValueError("Invalid model tool call structure")
             if not requested:
                 final = str(message.get("content") or "").strip()[:20_000]
                 break

@@ -7,7 +7,9 @@
   <meta name="description" content="Local-first family history research with traceable evidence and regional archive leads.">
   <title>Global Kinship — Research Workbench</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/family.css">
   <script type="module" src="/app.js"></script>
+  <script type="module" src="/family.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to research workbench</a>
@@ -40,6 +42,7 @@
           <p>Search individuals and records in a local case. Trace each relationship back to cited evidence—without confusing a promising lead with a proven fact.</p>
           <div class="case-controls">
             <label class="upload" for="case-file"><span aria-hidden="true">↥</span> Open case JSON <input type="file" id="case-file" accept=".json,application/json"></label>
+            <label class="upload" for="gedcom-file"><span aria-hidden="true">↥</span> Open GEDCOM (.ged) <input type="file" id="gedcom-file" accept=".ged,.gedcom,text/plain"></label>
             <button id="load-demo" class="button button-soft" type="button">Reset to sample case</button>
             <span class="case-tag" id="case-tag">Loading synthetic example…</span>
           </div>
@@ -71,6 +74,14 @@
             <div id="detail-body"><div class="empty"><div class="empty-symbol">⌁</div><h3>Select a record</h3><p>See original names, claims, citations, and the independent-source group.</p></div></div>
           </section>
         </div>
+        <section class="panel family-panel" aria-labelledby="family-title">
+          <div class="family-toolbar">
+            <div><span class="eyebrow">FAMILY CONNECTIONS — CLAIMS ONLY</span><h2 id="family-title">Explore one generation at a time</h2>
+              <p>These links come from the supplied file. Click a person to focus; relation statuses and source groups remain visible. Not a verified family tree.</p></div>
+            <label class="family-focus" for="tree-focus">Focus individual<select id="tree-focus"></select></label>
+          </div>
+          <div id="family-map" class="family-map" aria-live="polite"></div>
+        </section>
         <div class="notice-strip"><span class="notice-icon" aria-hidden="true">i</span><span>Sample names and citations are entirely fictional. Text matches do not prove identity; a passing audit does not authenticate archival records.</span></div>
       </section>
 

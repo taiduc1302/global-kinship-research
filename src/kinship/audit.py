@@ -141,22 +141,30 @@ def audit_case(case: Mapping) -> Audit:
         if status == "hypothesis" and ids:
             warning("claim.hypothesis_with_sources", f"Claim {cid}: sources exist; consider updating its evidence status after review")
 
-    visited, active = set(), set()
-    def walk(pid: str) -> None:
-        if pid in active:
-            error("claim.parent_cycle", f"An impossible parent_of cycle was found at {pid}")
-            return
-        if pid in visited:
-            return
-        active.add(pid)
-        for child in edges[pid]:
-            walk(child)
-        active.remove(pid)
-        visited.add(pid)
-
-    for pid in people:
-        if pid not in visited:
-            walk(pid)
+    # Iterative DFS avoids RecursionError for long but valid ancestral chains.
+    # Repeated source copies and unconfirmed parentage are checked above; a
+    # directed parent cycle is structurally impossible regardless of status.
+    visited: set[str] = set()
+    active: set[str] = set()
+    for root in people:
+        if root in visited:
+            continue
+        active.add(root)
+        stack = [(root, iter(edges[root]))]
+        while stack:
+            node, child_iter = stack[-1]
+            try:
+                child = next(child_iter)
+            except StopIteration:
+                stack.pop()
+                active.discard(node)
+                visited.add(node)
+                continue
+            if child in active:
+                error("claim.parent_cycle", f"An impossible parent_of cycle was found at {child}")
+            elif child not in visited:
+                active.add(child)
+                stack.append((child, iter(edges[child])))
 
     if not claims:
         warning("case.empty", "No claims to evaluate")

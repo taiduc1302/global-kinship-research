@@ -26,6 +26,8 @@ PYTHONPATH=src python -m kinship sources --region vietnam
 PYTHONPATH=src python -m kinship search examples/synthetic-vietnam-korea-case.json "Nguyen Van An"
 PYTHONPATH=src python -m kinship agent examples/synthetic-vietnam-korea-case.json --region korea --question "What evidence would be useful?"
 PYTHONPATH=src python -m kinship audit examples/synthetic-vietnam-korea-case.json
+PYTHONPATH=src python -m kinship import-gedcom examples/synthetic-gedcom-551.ged --region vietnam --case-id demo-import --question "What claims are supported?" --out private/demo-import.json
+PYTHONPATH=src python -m kinship graph examples/synthetic-vietnam-korea-case.json
 ```
 
 Default agent is a deterministic offline guide. With `--model` and a compatible local model service, the agent can invoke only `list_regions`, `region_guide`, `archive_leads`, `draft_search_plan`, `search_local_case`, `person_evidence`, `source_evidence`, `audit_evidence`. This is **actual tool dispatch**, not archive scraping. Do not issue unknown tools or assume live access. No automatic claim or publication approval.
@@ -35,6 +37,15 @@ External model endpoints are permitted only for synthetic cases, and only after 
 ## Ex-USSR compatibility
 
 The original project by Denis Shiryaev is a **separate** MIT-licensed pinned Git submodule at `upstreams/ex-ussr-kinship-research`. Read its own skill and preserve attribution. If you have its register CSV files, the `import-ex-ussr` CLI converts supported records, preserving original columns. Ambiguous relationships and unsupported statuses require human mapping; this importer does not read or upload documents. See `docs/EX_USSR_IMPORT.md`.
+
+## GEDCOM 5.5.1 / family-claim graph
+
+- Accept only local, UTF-8 GEDCOM **5.5.1** for now; follow `docs/GEDCOM_551.md`. Never claim GEDCOM 7, ANSEL, GEDZIP, OCR or archive harvesting is supported.
+- Use the `import-gedcom` CLI command or the local-browser GEDCOM chooser to create a **private** case; no external model, archive or cloud provider is queried automatically.
+- Show GEDCOM `FAM` structures as **hypotheses**, even if a family record mentions `SOUR`. The relationship graph displays claims with status and cited source groups, not established parentage. Do not infer parent type, merge same-name people, or deduce death just from age.
+- Treat source pointers and page citations as descriptions supplied by the GEDCOM file. They are **not** independent verification of originals. A second page or duplicate scan does not automatically create a second independence group.
+- Refuse broken pointers, invalid charsets, duplicates and cycles; do not silently repair unclear genealogy or publish imported family data. The importer intentionally omits residence/contact/media details.
+- GEDCOM export and broad format compatibility are not implemented. If users need those, explain the limitation and keep the original GEDCOM file unchanged.
 
 ## Hard gates
 

@@ -11,6 +11,8 @@ from kinship.audit import audit_case
 from kinship.catalog import list_archive_leads
 from kinship.plan import make_search_plan
 from kinship.legacy import import_ex_ussr_registers
+from kinship.gedcom import import_gedcom, MAX_BYTES as GEDCOM_MAX_BYTES
+from kinship.graph import relationship_graph
 from kinship.profiles import REGISTRY, get_profile
 from kinship.report import format_report
 from kinship.research import search_case
@@ -23,6 +25,19 @@ def _read_case(path: str) -> dict:
 
 def _output(value: object) -> None:
     print(json.dumps(value, ensure_ascii=False, indent=2))
+
+
+def _private_output_path(destination: str) -> Path:
+    """Keep sensitive exports outside a public checkout, or under ignored folders."""
+    target = Path(destination).expanduser()
+    root = Path(__file__).resolve().parents[2]
+    if (root / "pyproject.toml").is_file():
+        resolved = target.resolve()
+        if resolved.is_relative_to(root):
+            parts = resolved.relative_to(root).parts
+            if not parts or parts[0] not in {"private", "cases"}:
+                raise ValueError("Refusing to save private data in a public repository folder; use private/, cases/, or an outside path")
+    return target
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -47,6 +62,14 @@ def main(argv: list[str] | None = None) -> int:
     legacy.add_argument("--case-id", required=True)
     legacy.add_argument("--question", required=True)
     legacy.add_argument("--out", required=True, help="Private destination JSON path")
+    gedcom = sub.add_parser("import-gedcom", help="Convert UTF-8 GEDCOM 5.5.1 into a private unverified case")
+    gedcom.add_argument("gedcom_file")
+    gedcom.add_argument("--region", required=True, choices=sorted(REGISTRY))
+    gedcom.add_argument("--case-id", required=True)
+    gedcom.add_argument("--question", required=True)
+    gedcom.add_argument("--out", required=True, help="Private destination JSON path; never overwrites")
+    graph = sub.add_parser("graph", help="Show locally supplied family-link claims and independent sources")
+    graph.add_argument("case_file")
     search = sub.add_parser("search", help="Search names/citations in a local JSON case; not the internet")
     search.add_argument("case_file")
     search.add_argument("query")
@@ -81,19 +104,38 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if result.ok else 1
         elif args.command == "import-ex-ussr":
             case = import_ex_ussr_registers(args.register_dir, case_id=args.case_id, question=args.question)
-            path = Path(args.out)
+            path = _private_output_path(args.out)
             if path.exists():
                 raise ValueError("Refusing to overwrite an existing case")
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(case, ensure_ascii=False, indent=2), encoding="utf-8")
             print(f"Imported {len(case['people'])} persons, {len(case['artifacts'])} artifacts; private destination: {path}")
+        elif args.command == "import-gedcom":
+            source = Path(args.gedcom_file)
+            if source.stat().st_size > GEDCOM_MAX_BYTES:
+                raise ValueError("GEDCOM input is too large (512 KB limit)")
+            try:
+                source_text = source.read_text(encoding="utf-8-sig")
+            except UnicodeError as exc:
+                raise ValueError("GEDCOM input must use UTF-8; export from the original app first") from exc
+            case = import_gedcom(source_text, case_id=args.case_id, question=args.question, region=args.region)
+            target = _private_output_path(args.out)
+            if target.exists():
+                raise ValueError("Refusing to overwrite an existing case")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(case, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(f"Imported {len(case['people'])} people; private destination: {target}")
+        elif args.command == "graph":
+            _output(relationship_graph(_read_case(args.case_file)))
         elif args.command == "search":
             _output(search_case(_read_case(args.case_file), args.query, kind=args.kind))
         elif args.command == "report":
             case = _read_case(args.case_file)
             content = format_report(case, audit_case(case))
             if args.out:
-                path = Path(args.out)
+                path = _private_output_path(args.out)
+                if path.exists():
+                    raise ValueError("Refusing to overwrite an existing report")
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(content, encoding="utf-8")
                 print(f"Saved: {path}")
