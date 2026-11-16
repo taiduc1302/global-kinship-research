@@ -65,6 +65,28 @@ class AgentTests(unittest.TestCase):
         result = ResearchAgent(CASE, 'korea').run('Test remote', model=MockRemoteModel(), remote_consent=True)
         self.assertEqual(result['mode'], 'model-assisted')
 
+    def test_remote_rejects_spoofed_synthetic_visibility(self):
+        # A case is not safe for external transfer merely because its owner
+        # changes the user-editable visibility field to 'synthetic'.
+        impostor = copy.deepcopy(CASE)
+        impostor["people"][0]["names"][0]["original"] = "Sensitive fictional marker never to transmit"
+        model = MockRemoteModel()
+        with self.assertRaisesRegex(ValueError, "unmodified bundled synthetic demo"):
+            ResearchAgent(impostor, "vietnam").run(
+                "Is this safe to send?", model=model, remote_consent=True
+            )
+        self.assertEqual(model.turn, 0)
+
+    def test_remote_rejects_spoofed_private_case_label(self):
+        impostor = copy.deepcopy(CASE)
+        impostor["people"][1]["living"] = True
+        model = MockRemoteModel()
+        with self.assertRaisesRegex(ValueError, "unmodified bundled synthetic demo"):
+            ResearchAgent(impostor, "korea").run(
+                "Please check", model=model, remote_consent=True
+            )
+        self.assertEqual(model.turn, 0)
+
     def test_endpoint_rejects_arbitrary_http_and_auth_in_url(self):
         with self.assertRaisesRegex(ValueError,'HTTPS'):
             OpenAICompatibleClient('test', 'http://example.com/v1/chat/completions')
