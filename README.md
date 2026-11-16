@@ -88,14 +88,26 @@ See [GEDCOM import limits](docs/GEDCOM_551.md). Do not commit imported files or 
 
 ## Verification
 
+Run the offline release gate from the repository root (requires Python 3.10+ and Node.js):
+
+```bash
+python scripts/verify_release.py
+python scripts/verify_release.py --browser  # optional: Playwright + Chromium component smoke
+```
+
+The gate runs all local Python tests, compiles Python, checks all JavaScript files with Node, and starts a **real loopback HTTP server** for a synthetic GEDCOM import/search/graph/agent/API security smoke. It returns a nonzero exit code and a machine-readable JSON summary if any required check fails. No GitHub Actions, paid CI, archive access or AI keys are needed. The optional browser component test uses a simulated graph API and is **not** a complete live-browser end-to-end test.
+
+> The release gate script itself was syntax-checked and exercised against the available v0.1 baseline: 31 Python tests passed; JavaScript and v0.3 HTTP checks correctly reported missing functionality. A full passing v0.3 gate is **not yet claimed**; see [docs/QA.md](docs/QA.md).
+
+For targeted development checks:
+
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
 node --check src/kinship/static/app.js
-python scripts/browser_smoke_family.py      # optional: Playwright + Chromium, mocked graph API
 node --check src/kinship/static/family.js
 ```
 
-Tests use the standard library, a fake model client and synthetic cases. The browser interface was also inspected at desktop and mobile sizes; see [docs/QA.md](docs/QA.md). **No GitHub Actions were added.**
+All tests use synthetic cases. Real Windows launch, external AI calls, real archive searching and third-party GEDCOM interoperability require separate verification. **No GitHub Actions were added.**
 
 ## Architecture and guardrails
 
