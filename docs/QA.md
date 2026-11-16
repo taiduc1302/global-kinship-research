@@ -63,3 +63,9 @@ These tests are narrower than a full v0.3 regression; avoid presenting them as a
 - On non-Windows systems with the full Git checkout, the local repeatable check is `python scripts/verify_release.py --browser`. Requires Node.js; optional browser checks require Playwright and Chromium.
 
 **Release decision:** PR #1 stays draft; do not merge until the full exact-head suite and actual loopback-to-browser integration are run and pass. This note does not claim a tested Windows launcher, real AI model, archival data access, or public deployment security.
+
+### Additional private-output guardrail
+
+- Found that CLI `--out` values for GEDCOM import, Ex-USSR registers and reports could target ordinary public-repository folders, creating an accidental-commit risk. Added `_private_output_path` guard: outputs within a source checkout must resolve under git-ignored `private/` or `cases/`, or be stored outside the checkout.
+- Reports now refuse to overwrite an existing file. Added `tests/test_cli.py` negative tests for public-folder paths and overwrite preservation.
+- Verified the path-selection algorithm in an isolated temporary project: public documentation folder blocked, `private/` and `cases/` accepted, outside path accepted. **The full exact-branch CLI tests are still pending**.
