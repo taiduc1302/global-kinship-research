@@ -20,7 +20,7 @@ Only UTF-8/ASCII GEDCOM 5.5.1 local text import is enabled. The server stores no
 - Default agent uses **offline deterministic tools** and no LLM, so no billable requests or accidental external transfers.
 - Optional model client speaks a read-only Chat Completions tool protocol; it cannot browse official archives, send emails or mutate case data.
 - Model responses are unverified drafts. Automated audit validates structure only. Model tool calls are bounded and rejected when unknown or malformed.
-- Only localhost HTTP or HTTPS endpoints are supported. External HTTPS model usage needs `--allow-remote`, synthetic cases, and per-request consent. Private or public-historical cases are rejected from external model transmission even if a user checks consent.
+- Only localhost HTTP or HTTPS endpoints are supported. External HTTPS model usage needs `--allow-remote`, an **unmodified copy of the bundled fictional demo case** (not merely a user-set `visibility: synthetic` label), and explicit per-request consent. Private, historical and altered demo cases are rejected before any model request. **The research question is also transmitted**; do not include private names or sensitive details in a remote-model question. The remote provider's data policies still apply.
 - Server-side API key comes from `KINSHIP_API_KEY` environment variable; never include secrets in case JSON or user prompts.
 - Local LLMs might themselves run other logging/telemetry; check their own data handling separately. No real model endpoint was exercised in the v0.2 test suite.
 
