@@ -51,3 +51,15 @@ These tests are narrower than a full v0.3 regression; avoid presenting them as a
 - **Full end-to-end browser test against actual v0.3 loopback API and real HTML/CSS:** browser navigation to a loopback listener was blocked by the current test environment; component testing used a mocked `fetch`.
 - **Real local AI model**, **legally authorized archive API**, **GEDCOM files exported by actual third-party apps**, and **Windows double-click launcher** remain separate integration/compatibility gates.
 - Keep PR #1 as **draft** until the full suite and end-to-end integration gates pass. Never merge by substituting component tests for those checks. No user-family data was used.
+
+## 2026-11-15 — Continued hardening and repeatable release gate
+
+- Inspected latest PR #1 head through the connected GitHub API (no checkout of the full head available through local Git DNS).
+- Found a privacy bypass: setting `visibility: synthetic` on a real local case used to make it eligible for external model calls. Restricted the agent to **the exact bundled demo JSON** and per-request consent, and added negative tests with altered names and living-person flags. The question text is also sent externally when an external model is explicitly enabled.
+- Added rejection of malformed tool-call objects from model replies before dispatch, plus a test with a non-object `tool_calls` entry.
+- Created `scripts/verify_release.py`: offline standard-library runner for combined Python unittest, Python compilation, Node.js JavaScript syntax, a **real local loopback API** synthetic GEDCOM/search/graph/agent smoke, and optional Chromium component check (`--browser`). No GitHub Actions or network archive requests.
+- **Verified release-runner behavior on the available v0.1 local archive**: Python baseline 31/31 passed; the runner returned `blocked` because v0.1 does not contain v0.3 static JS files or the HTTP server. This is the correct fail-closed behavior, **not** a passing v0.3 release gate.
+- New AI privacy/tool-call unit tests are committed but have **not been executed against the full exact v0.3 checkout** in this environment. The combined v0.2+v0.3 regression and genuine full-browser end-to-end tests therefore remain open.
+- On non-Windows systems with the full Git checkout, the local repeatable check is `python scripts/verify_release.py --browser`. Requires Node.js; optional browser checks require Playwright and Chromium.
+
+**Release decision:** PR #1 stays draft; do not merge until the full exact-head suite and actual loopback-to-browser integration are run and pass. This note does not claim a tested Windows launcher, real AI model, archival data access, or public deployment security.
