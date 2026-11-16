@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+from importlib.resources import files
 from typing import Protocol
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
@@ -190,6 +191,12 @@ class ResearchAgent:
         if getattr(model, "is_remote", False):
             if self.case.get("visibility") != "synthetic":
                 raise ValueError("Remote models accept only synthetic demo cases; private and historical cases stay local")
+            # A user-controlled visibility label is not a privacy boundary.
+            # Permit only the exact, checked-in fictional demo; a case with
+            # real names must not become cloud-eligible by changing one field.
+            demo = json.loads(files("kinship").joinpath("static", "demo.json").read_text(encoding="utf-8"))
+            if self.case != demo:
+                raise ValueError("Remote models accept only the unmodified bundled synthetic demo case")
             if not remote_consent:
                 raise ValueError("External model transfer requires explicit per-request consent")
 
