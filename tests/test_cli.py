@@ -55,6 +55,34 @@ class CLITests(unittest.TestCase):
             self.assertEqual(p.returncode, 0, p.stderr)
             self.assertIn("### C1", dest.read_text(encoding="utf-8"))
 
+    def test_gedcom_import_refuses_public_repository_output(self):
+        # This destination would be easy to commit accidentally to public GitHub.
+        destination = ROOT / "docs" / "must-not-write-private-gedcom.json"
+        self.assertFalse(destination.exists())
+        input_file = ROOT / "examples" / "synthetic-gedcom-551.ged"
+        command = self.invoke(
+            "import-gedcom", input_file, "--region", "vietnam",
+            "--case-id", "synthetic-only", "--question", "Test importer privacy",
+            "--out", destination
+        )
+        self.assertEqual(command.returncode, 2, command.stderr)
+        self.assertIn("public repository folder", command.stderr)
+        self.assertFalse(destination.exists())
+
+    def test_report_refuses_public_repo_path_and_overwrites(self):
+        destination = ROOT / "docs" / "must-not-write-case-report.md"
+        self.assertFalse(destination.exists())
+        command = self.invoke("report", CASE, "--out", destination)
+        self.assertEqual(command.returncode, 2, command.stderr)
+        self.assertIn("public repository folder", command.stderr)
+        self.assertFalse(destination.exists())
+        with tempfile.TemporaryDirectory() as folder:
+            existing = Path(folder) / "report.md"
+            existing.write_text("Do not overwrite", encoding="utf-8")
+            command = self.invoke("report", CASE, "--out", existing)
+            self.assertEqual(command.returncode, 2, command.stderr)
+            self.assertEqual(existing.read_text(encoding="utf-8"), "Do not overwrite")
+
     def test_cli_invalid_json(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "bad.json"
