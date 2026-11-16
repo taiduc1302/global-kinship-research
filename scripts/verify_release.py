@@ -120,15 +120,34 @@ def browser():
     return {'scope': 'family component with mocked graph API, not live end-to-end browser'}
 
 
+def browser_e2e():
+    """Browser UI plus actual local API through explicit test transport bridge."""
+    script = ROOT / 'scripts/browser_e2e_bridge.py'
+    if not script.is_file():
+        raise RuntimeError('Local API browser smoke script missing')
+    result = run_command([sys.executable, str(script)])
+    if result.returncode:
+        sys.stderr.write(result.stderr[-3000:])
+        raise RuntimeError('Local API Chromium UI smoke failed')
+    payload = json.loads(result.stdout)
+    if payload.get('status') != 'passed' or len(payload.get('results', [])) != 2:
+        raise RuntimeError('Browser smoke returned an incomplete result')
+    return {'scope': 'real loopback API through test transport bridge; not direct Chromium network',
+            'viewports': [item['view'] for item in payload['results']]}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Offline release verification; no hosted CI')
     parser.add_argument('--browser', action='store_true', help='Also require Playwright + Chromium component test')
+    parser.add_argument('--browser-e2e', action='store_true', help='Also require browser UI against the real local API via a transport bridge')
     parser.add_argument('--json-out', help='Optional output path outside source repository')
     args = parser.parse_args(argv)
     results = []
     checks = [('python_regression', suite), ('compile_and_javascript', syntax), ('live_local_http', http_smoke)]
     if args.browser:
         checks.append(('chromium_component', browser))
+    if args.browser_e2e:
+        checks.append(('chromium_real_api_bridge', browser_e2e))
     for name, check in checks:
         try:
             results.append({'check': name, 'status': 'passed', 'details': check()})
