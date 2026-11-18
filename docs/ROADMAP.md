@@ -1,6 +1,6 @@
 # Development roadmap and exit gates
 
-Owner: Global Kinship Research maintainers. Updated: 2026-11-16. **No issue or agent may approve genealogy evidence or archive access on behalf of a researcher.**
+Owner: Global Kinship Research maintainers. Updated: 2026-11-18. **No issue or agent may approve genealogy evidence or archive access on behalf of a researcher.**
 
 
 **Detailed task/source-of-truth:** [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md). It records implemented/partial/not-started/blocked items and **parks future UI/visual ideas** so v0.4 can focus on genuine online ancestor search.
@@ -37,13 +37,17 @@ Owner: Global Kinship Research maintainers. Updated: 2026-11-16. **No issue or a
 - [x] Add synthetic regression tests for Unicode names, broken pointers, cycles, duplicate source pages, privacy and unsupported format versions.
 - [ ] Run on physical Windows workstation and check imported output with independently validated GEDCOM samples.
 
-## v0.4 — Actual online historical-record search (NEXT, not implemented)
+## v0.4 — Actual online historical-record search (PARTIAL pilot, real live-response test still pending)
 
-- [ ] Replace ambiguous search framing with separate **Search my local case** and **Search historical records online** experiences.
+- [x] Separate **Search my local case** from **Search archives** so users know which records are being searched.
 - [ ] Audit permissions, terms, coverage and feasibility of proposed official archival sources; choose a genuinely searchable, authorized pilot (not only a portal landing page).
-- [ ] Build a provider-neutral record/provenance contract, one read-only source connector, error/no-result states and human-reviewed lead import.
-- [ ] Verify a permitted **real query** and record ID plus privacy, duplicate-source and no-result regression tests.
+- [x] Add a narrow, consent-gated read-only Library of Congress JSON metadata adapter and separate online UI with original record links, explicit error/no-results states, and manual **unverified** catalog-lead capture.
+- [ ] Expand to a provider-neutral contract and additional archives after terms/coverage reviews.
+- [x] Add offline transport/HTTP/browser tests for privacy, source identity, duplicate URLs, missing sources, rate limits, no-result and error states.
+- [ ] Complete a **real** lawful API query with stable source ID and confirm live schema across collections. Development environment outbound DNS is blocked; no live API success is claimed.
 - [ ] Keep cosmetic redesign, historical visual maps and full multi-generation tree in [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md) until the live search works.
+
+**Pilot docs:** [ARCHIVE_PILOT.md](ARCHIVE_PILOT.md) and [QA_V04_PILOT.md](QA_V04_PILOT.md). The other 11 regional guides remain manual-only research routes, not live search connectors.
 
 **Exit gate:** at least one real lawful archival search with verifiable institution/record URL, honest query/result metadata, manual evidence review and passing non-GitHub-Actions tests. A directory of links or generated AI research plan does not meet this gate.
 
