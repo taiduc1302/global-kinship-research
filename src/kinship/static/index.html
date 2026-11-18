@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/family.css">
   <script type="module" src="/app.js"></script>
   <script type="module" src="/family.js"></script>
+  <script type="module" src="/online.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to research workbench</a>
@@ -20,6 +21,7 @@
     <div class="nav-label">WORKSPACE</div>
     <nav class="nav" aria-label="Sections">
       <button class="nav-button active" data-view="explore" aria-current="page"><span class="nav-icon">⌕</span> Explore case</button>
+      <button class="nav-button" data-view="online"><span class="nav-icon">&#8981;</span> Search archives</button>
       <button class="nav-button" data-view="sources"><span class="nav-icon">▤</span> Archive directory</button>
       <button class="nav-button" data-view="research"><span class="nav-icon">◇</span> Research assistant</button>
       <button class="nav-button" data-view="evidence"><span class="nav-icon">◫</span> Evidence review</button>
@@ -44,6 +46,7 @@
             <label class="upload" for="case-file"><span aria-hidden="true">↥</span> Open case JSON <input type="file" id="case-file" accept=".json,application/json"></label>
             <label class="upload" for="gedcom-file"><span aria-hidden="true">↥</span> Open GEDCOM (.ged) <input type="file" id="gedcom-file" accept=".ged,.gedcom,text/plain"></label>
             <button id="load-demo" class="button button-soft" type="button">Reset to sample case</button>
+            <button id="save-case" class="button button-soft" type="button">Download current case JSON</button>
             <span class="case-tag" id="case-tag">Loading synthetic example…</span>
           </div>
         </div>
@@ -55,7 +58,7 @@
         </div>
         <div class="workspace-grid">
           <section class="panel results-panel" aria-labelledby="case-search-title">
-            <div class="panel-heading"><div><span class="eyebrow">EXPLORE YOUR CASE</span><h2 id="case-search-title">Find people & evidence</h2></div><span class="panel-kicker" id="results-count">Sample records</span></div>
+            <div class="panel-heading"><div><span class="eyebrow">EXPLORE YOUR CASE</span><h2 id="case-search-title">Search my local case</h2></div><span class="panel-kicker" id="results-count">Sample records</span></div>
             <form id="search-form" class="search-form">
               <label class="sr-only" for="search-query">Name, record, or citation</label>
               <input id="search-query" type="search" placeholder="Name, place, record, or citation…" autocomplete="off" maxlength="200">
@@ -83,6 +86,33 @@
           <div id="family-map" class="family-map" aria-live="polite"></div>
         </section>
         <div class="notice-strip"><span class="notice-icon" aria-hidden="true">i</span><span>Sample names and citations are entirely fictional. Text matches do not prove identity; a passing audit does not authenticate archival records.</span></div>
+      </section>
+
+      <section id="view-online" class="view" hidden aria-labelledby="online-title">
+        <div class="section-intro">
+          <span class="eyebrow">EXTERNAL HISTORICAL CATALOG SEARCH — PILOT</span>
+          <h1 id="online-title">Search archival records<span class="accent-dot">.</span></h1>
+          <p>This is a <strong>real external archive search</strong>, separate from your local family case. The first provider is the U.S. Library of Congress, which covers some digital collections and manuscripts, not all ancestors worldwide. A name appearing in a catalog is only a research lead, never proof of family identity.</p>
+        </div>
+        <div class="panel online-panel">
+          <div class="panel-heading"><div><h2>Search the Library of Congress</h2><p>Queries run only when you press Search and confirm external transmission.</p></div><span class="panel-kicker">Public catalog API</span></div>
+          <form id="online-form" class="online-form">
+            <div class="online-field online-wide"><label class="field-label" for="online-name">Name / text as recorded</label><input id="online-name" name="name" maxlength="160" minlength="2" required placeholder="e.g. Jason Huang" autocomplete="off"></div>
+            <div class="online-field"><label class="field-label" for="online-place">Historical place (optional)</label><input id="online-place" name="place" maxlength="100" placeholder="e.g. San Francisco" autocomplete="off"></div>
+            <div class="online-field"><label class="field-label" for="online-collection">Library collection</label><select id="online-collection"><option value="manuscripts">Manuscripts and papers</option><option value="newspapers">Historical newspapers</option><option value="all">All loc.gov holdings (includes non-historical material)</option></select></div>
+            <div class="online-field"><label class="field-label" for="online-year-start">Record year from (optional)</label><input id="online-year-start" type="number" min="1500" max="2100" step="1" inputmode="numeric" placeholder="1900"></div>
+            <div class="online-field"><label class="field-label" for="online-year-end">Record year to (optional)</label><input id="online-year-end" type="number" min="1500" max="2100" step="1" inputmode="numeric" placeholder="1950"></div>
+            <label class="online-consent online-wide"><input id="online-consent" type="checkbox" required> <span>I understand my search name, place and record years will be sent to the Library of Congress. I will not use this to seek confidential records of living people.</span></label>
+            <div class="online-actions online-wide"><button class="button button-primary" id="online-submit" type="submit">Search external archive</button><span>Year filters refer to <strong>catalog item dates</strong>, not a person's birth/death dates.</span></div>
+          </form>
+        </div>
+        <div class="panel online-panel online-results-panel">
+          <div class="panel-heading"><div><h2>Catalog results</h2><p id="online-result-count">Not searched</p></div><span class="panel-kicker">Identity not verified</span></div>
+          <div id="online-search-status" class="online-search-status" role="status" aria-live="polite">No external request has been made. Your local case search remains separate.</div>
+          <div id="online-results" class="online-results" aria-live="polite"></div>
+          <div class="online-pagination" id="online-pagination" hidden><button class="button button-soft" type="button" id="online-prev">Previous page</button><span id="online-page-label"></span><button class="button button-soft" type="button" id="online-next">Next page</button></div>
+        </div>
+        <div class="notice-strip"><span class="notice-icon" aria-hidden="true">i</span><span>Records are not saved or linked to people automatically. Some archives have no searchable API; those remain manual research destinations under Archive directory. Source images and full-text reuse may have separate restrictions.</span></div>
       </section>
 
       <section id="view-sources" class="view" hidden aria-labelledby="sources-title">
@@ -119,7 +149,7 @@
           <section class="panel"><div class="panel-heading"><div><h2>Cited claims</h2><p>Click any claim to see related records.</p></div></div><div id="claims-list" class="claims-list"></div></section></div>
       </section>
     </main>
-    <footer class="footer"><span>Global Kinship · Evidence-first research</span><span>Local prototype · no record scraping · no automatic approvals</span></footer>
+    <footer class="footer"><span>Global Kinship · Evidence-first research</span><span>Local workbench · approved archive API pilot · no automatic approvals</span></footer>
   </div>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>

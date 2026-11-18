@@ -8,6 +8,7 @@ import json
 
 from kinship.agent import OpenAICompatibleClient, ResearchAgent
 from kinship.gedcom import import_gedcom
+from kinship.online import ArchiveSearchError, LibraryOfCongressSearch, COLLECTIONS
 from kinship.graph import relationship_graph
 from kinship.audit import audit_case
 from kinship.catalog import list_archive_leads
@@ -20,19 +21,21 @@ STATIC = {"/": ("index.html", "text/html; charset=utf-8"),
           "/app.js": ("app.js", "application/javascript; charset=utf-8"),
           "/styles.css": ("styles.css", "text/css; charset=utf-8"),
           "/family.js": ("family.js", "application/javascript; charset=utf-8"),
+          "/online.js": ("online.js", "application/javascript; charset=utf-8"),
           "/family.css": ("family.css", "text/css; charset=utf-8")}
 
 
 class Workbench(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, address, model=None):
+    def __init__(self, address, model=None, archive_client=None):
         super().__init__(address, WorkbenchHandler)
         self.model_client = model
+        self.archive_client = archive_client if archive_client is not None else LibraryOfCongressSearch()
 
 
 class WorkbenchHandler(BaseHTTPRequestHandler):
-    server_version = "KinshipWorkbench/0.3"
+    server_version = "KinshipWorkbench/0.4-preview"
 
     def log_message(self, fmt, *args):
         # Never log path queries, user content, payloads or model transcripts.
@@ -82,6 +85,13 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
             return self._respond({"status": "ready", "local_only": True, "data_persisted": False,
                                   "agent_mode": "model-assisted" if model else "guided-offline",
                                   "remote_model": bool(model and model.is_remote)})
+        if path == "/api/archive-providers":
+            return self._respond({"providers": [{
+                "id": "loc", "name": "Library of Congress", "status": "available_when_online",
+                "collections": list(COLLECTIONS), "external_search": True,
+                "personal_identification": False, "manual_review_required": True,
+                "scope": "U.S. Library of Congress digitized holdings and collection metadata, not a global vital-record database",
+            }]})
         if path == "/api/regions":
             return self._respond({"regions": [{"code": p.code, "name": p.display_name,
                                                  "status": p.status, "sources": len(p.archives)}
@@ -119,6 +129,14 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
                 result = audit_case(payload["case"]).as_dict()
             elif path == "/api/search":
                 result = search_case(payload["case"], payload["query"], kind=payload.get("kind", "all"))
+            elif path == "/api/search-archives":
+                if payload.get("provider_id") != "loc":
+                    raise ArchiveSearchError("invalid_query", "Only the Library of Congress pilot is connected")
+                result = self.server.archive_client.search(
+                    name=payload.get("name"), place=payload.get("place", ""),
+                    start_year=payload.get("start_year"), end_year=payload.get("end_year"),
+                    collection=payload.get("collection", "manuscripts"), page=payload.get("page", 1),
+                    consent=payload.get("consent") is True)
             elif path == "/api/graph":
                 result = relationship_graph(payload["case"])
             elif path == "/api/import-gedcom":
@@ -139,6 +157,8 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
             else:
                 return self._respond({"error": "Not found"}, 404)
             return self._respond(result)
+        except ArchiveSearchError as exc:
+            return self._respond(exc.as_dict(), exc.http_status)
         except (ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
             return self._respond({"error": str(exc)[:300]}, 400)
         except Exception:

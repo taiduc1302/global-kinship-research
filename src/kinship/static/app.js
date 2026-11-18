@@ -37,7 +37,7 @@ async function api(path, body = null) {
   return data;
 }
 function showView(name) {
-  const views = {explore: 'Explore case', sources: 'Archive directory', research: 'Research assistant', evidence: 'Evidence review'};
+  const views = {explore: 'Explore case (local)', online: 'Search online archives', sources: 'Archive directory', research: 'Research assistant', evidence: 'Evidence review'};
   if (!(name in views)) return;
   for (const [key] of Object.entries(views)) $(`view-${key}`).hidden = key !== name;
   for (const b of document.querySelectorAll('.nav-button')) {
@@ -227,6 +227,47 @@ async function renderEvidence() {
     claims.append(button);
   }
 }
+function downloadCase() {
+  if (!state.case) return notify('Open a case before exporting it.');
+  const data = JSON.stringify(state.case, null, 2);
+  const blob = new Blob([data], {type: 'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `private-kinship-${String(state.case.case_id || 'case').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0,64)}.json`;
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  notify('Case JSON downloaded. Store it privately; do not commit family data to public GitHub.');
+}
+
+async function acceptArchiveLead(record) {
+  if (!state.case) throw new Error('Open a local case before adding a research lead.');
+  if (!record || record.provider_id !== 'loc' || !record.source_id ||
+      !/^https:\/\/www\.loc\.gov\/(item|resource)\//.test(record.record_url || '')) {
+    throw new Error('Only source links from the approved Library of Congress catalog are accepted.');
+  }
+  if ((state.case.artifacts || []).some(a => a.url === record.record_url)) {
+    notify('This archive item is already listed in the current case.'); return;
+  }
+  const updated = JSON.parse(JSON.stringify(state.case));
+  updated.artifacts = updated.artifacts || [];
+  updated.visibility = 'private'; // Cannot extend a synthetic demo with real archive metadata and leave its label synthetic.
+  const nextId = String(record.source_id).slice(0, 80);
+  if (updated.artifacts.some(a => a.id === nextId)) {
+    throw new Error('An artifact with that ID already exists; review sources manually.');
+  }
+  updated.artifacts.push({
+    id: nextId, citation: `${record.title_as_cataloged || 'Untitled archive item'}; Library of Congress; ${record.date_as_cataloged || 'date unknown'}; ${record.record_url}`,
+    independence_group: `catalog:${record.record_url}`,
+    access: record.access_restricted ? 'restricted' : 'unknown',
+    url: record.record_url,
+    notes: 'Unverified external catalog lead only; original record and person identity not reviewed.',
+    research_status: 'unreviewed_lead', provider_id: 'loc',
+  });
+  await useCase(updated, 'Private case + catalog lead');
+  notify('Unverified catalog lead added in browser memory. Download your case JSON to keep it. No relationship was created.');
+}
+
 async function init() {
   for (const nav of document.querySelectorAll('.nav-button')) nav.addEventListener('click', () => showView(nav.dataset.view));
   $('search-form').addEventListener('submit', e => { e.preventDefault(); doSearch().catch(err => notify(err.message)); });
@@ -256,6 +297,8 @@ async function init() {
     finally { event.target.value = ''; }
   });
   $('load-demo').addEventListener('click', () => resetDemo().catch(e => notify(e.message)));
+  $('save-case').addEventListener('click', downloadCase);
+  document.addEventListener('kinship-add-archive-lead', event => acceptArchiveLead(event.detail.record).catch(e => notify(e.message)));
   $('region-select').addEventListener('change', () => refreshSources().catch(e => notify(e.message)));
   $('agent-region').addEventListener('change', e => { state.region = e.target.value; $('region-select').value = state.region; });
   $('run-audit').addEventListener('click', () => renderEvidence().catch(e => notify(e.message)));
