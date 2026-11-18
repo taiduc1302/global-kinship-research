@@ -2,6 +2,8 @@
 
 **A local-first genealogy research workbench: explore a case, inspect sources, build region-specific research plans, and have an optional AI model call read-only evidence tools.**
 
+**[Product backlog and unfinished work](docs/PRODUCT_BACKLOG.md)** — single maintained list for v0.4 real ancestor search, future UX/visual improvements, regional expansion, interoperability, AI, security and tests. Current priority: connect at least one permitted searchable archive; today's name search works only inside the local case.
+
 > **Status: v0.3 local prototype.** The app searches only documents and person records you supply in its case JSON. It **does not** search external archive records, identify relatives automatically, prove parentage, or contact archives. Official external websites are **research leads**, not verified matches.
 
 ## What works

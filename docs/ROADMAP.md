@@ -1,6 +1,9 @@
 # Development roadmap and exit gates
 
-Owner: Global Kinship Research maintainers. Updated: 2026-11-12. **No issue or agent may approve genealogy evidence or archive access on behalf of a researcher.**
+Owner: Global Kinship Research maintainers. Updated: 2026-11-16. **No issue or agent may approve genealogy evidence or archive access on behalf of a researcher.**
+
+
+**Detailed task/source-of-truth:** [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md). It records implemented/partial/not-started/blocked items and **parks future UI/visual ideas** so v0.4 can focus on genuine online ancestor search.
 
 ## v0.1 — Evidence core (complete)
 
@@ -33,6 +36,16 @@ Owner: Global Kinship Research maintainers. Updated: 2026-11-12. **No issue or a
 - [x] Add browser GEDCOM picker and one-generation responsive family-connections view.
 - [x] Add synthetic regression tests for Unicode names, broken pointers, cycles, duplicate source pages, privacy and unsupported format versions.
 - [ ] Run on physical Windows workstation and check imported output with independently validated GEDCOM samples.
+
+## v0.4 — Actual online historical-record search (NEXT, not implemented)
+
+- [ ] Replace ambiguous search framing with separate **Search my local case** and **Search historical records online** experiences.
+- [ ] Audit permissions, terms, coverage and feasibility of proposed official archival sources; choose a genuinely searchable, authorized pilot (not only a portal landing page).
+- [ ] Build a provider-neutral record/provenance contract, one read-only source connector, error/no-result states and human-reviewed lead import.
+- [ ] Verify a permitted **real query** and record ID plus privacy, duplicate-source and no-result regression tests.
+- [ ] Keep cosmetic redesign, historical visual maps and full multi-generation tree in [PRODUCT_BACKLOG.md](PRODUCT_BACKLOG.md) until the live search works.
+
+**Exit gate:** at least one real lawful archival search with verifiable institution/record URL, honest query/result metadata, manual evidence review and passing non-GitHub-Actions tests. A directory of links or generated AI research plan does not meet this gate.
 
 ## Planned — Real source-aware research connectors
 
