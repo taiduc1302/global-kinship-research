@@ -2,9 +2,9 @@
 
 **A local-first genealogy research workbench: explore a case, inspect sources, build region-specific research plans, and have an optional AI model call read-only evidence tools.**
 
-**[Product backlog and unfinished work](docs/PRODUCT_BACKLOG.md)** — single maintained list for v0.4 real ancestor search, future UX/visual improvements, regional expansion, interoperability, AI, security and tests. Current priority: connect at least one permitted searchable archive; today's name search works only inside the local case.
+**[Product backlog and unfinished work](docs/PRODUCT_BACKLOG.md)** — single maintained list for v0.4 real ancestor search, future UX/visual improvements, regional expansion, interoperability, AI, security and tests. Current priority: verify the first real archive provider and expand authorized historical search. The local-case search remains separate from the new external-search pilot.
 
-> **Status: v0.3 local prototype.** The app searches only documents and person records you supply in its case JSON. It **does not** search external archive records, identify relatives automatically, prove parentage, or contact archives. Official external websites are **research leads**, not verified matches.
+> **Status: v0.4 experimental archive-search pilot on the v0.3 core.** **Explore case** searches only supplied data. The separate **Search archives** page can make consented, read-only Library of Congress JSON API requests for catalog metadata. Live endpoint success has **not yet been verified** in the development environment; other region archives are still manual leads. Catalog results are not identified relatives.
 
 ## What works
 
@@ -12,6 +12,7 @@
 | --- | --- | --- |
 | Browser workbench | **Implemented** | Accessible from `127.0.0.1`; no cloud hosting, accounts or database |
 | Search people / artifacts / claims | **Implemented** | Local case only, text search and safe Latin accent folding |
+| Library of Congress external catalog pilot | **Offline-tested; live acceptance pending** | Explicit HTTPS/consent, metadata-only, fixed provider, not a global ancestor registry |
 | Source inspector / proof-group links | **Implemented** | Shows citations, copied source groups, claim links, verbatim names |
 | Regional source directory | **11 profiles** | Ex-USSR, Vietnam, Korea, China, Japan, Taiwan, Philippines, Thailand, Indonesia, Malaysia, India; links must be checked at use time |
 | Research assistant | **Implemented** | Offline route by default; optional local OpenAI-compatible model with real read-only tool calls |
@@ -20,12 +21,13 @@
 | ex-USSR register importer | **Implemented** | Conservative CSV conversion from upstream templates, no ambiguous relationship mapping |
 | GEDCOM 5.5.1 import | **Bounded beta** | UTF-8/ASCII, 512 KB cap, safe subset; parent-child claims remain hypotheses, no auto merging |
 | One-generation family connections | **Implemented** | Shows supplied relationships, statuses and source groups; not a verified family tree |
-| Live government archive searching, automatic OCR, GEDCOM export/7.0, authentication | **Not implemented** | Require legal/technical review before deployment |
+| Additional national archives, OCR, GEDCOM export/7.0, authentication | **Not implemented** | Further source permissions and security review required; no global search coverage |
 
 ### Screens and workflow
 
 - **Explore case** — open a local JSON case or GEDCOM 5.5.1 file, search people or citations, inspect evidence without losing original spelling. The family connections map shows one generation around a selected person, with warnings and source groups.
-- **Archive directory** — country and historical-region filtering, institution links and access notices.
+- **Search archives** — explicit read-only Library of Congress query, source links, access warnings, and manual addition as **unverified lead** to browser-held case. [Pilot limits](docs/ARCHIVE_PILOT.md).
+- **Archive directory** — country and historical-region filtering, institution links and access notices. Portal links are **not** live connectors.
 - **Research assistant** — region-aware planning and tool trace; optional model uses **whitelisted** operations to search the *local* case and audit sources.
 - **Evidence review** — audit failures, claims and independent source groups. No claim is ever automatically approved.
 
@@ -88,6 +90,10 @@ Use the **Open GEDCOM** control next to **Open case JSON** in the local workbenc
 
 See [GEDCOM import limits](docs/GEDCOM_551.md). Do not commit imported files or case JSON to GitHub.
 
+## Archive pilot limits and tests
+
+The first external provider uses the documented Library of Congress JSON API (no API key). This code rate-limits calls to one every five seconds, requires explicit consent and keeps catalog leads in memory unless a user downloads the private case JSON. Live API compatibility and international archive coverage are not yet verified. See [ARCHIVE_PILOT](docs/ARCHIVE_PILOT.md) and [v0.4 QA](docs/QA_V04_PILOT.md).
+
 ## Verification
 
 Run the offline release gate from the repository root (requires Python 3.10+ and Node.js):
@@ -95,6 +101,7 @@ Run the offline release gate from the repository root (requires Python 3.10+ and
 ```bash
 python scripts/verify_release.py
 python scripts/verify_release.py --browser             # optional Chromium component smoke
+python scripts/browser_smoke_online.py                 # optional synthetic archive transport UI smoke
 python scripts/verify_release.py --browser --browser-e2e  # UI + real local API via test bridge
 ```
 
