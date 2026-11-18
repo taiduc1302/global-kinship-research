@@ -119,6 +119,12 @@ node --check src/kinship/static/family.js
 
 All tests use synthetic cases. Real Windows launch, external AI calls, real archive searching and third-party GEDCOM interoperability require separate verification. **No GitHub Actions were added.**
 
+## Regional archive connector readiness and source comparison
+
+See [regional connector access matrix](docs/REGIONAL_ARCHIVE_CONNECTORS.md) for Korea (issued API key), Shanghai Library (developer key), Vietnam (human-facing search, public third-party API not established), ex-USSR (custodian-specific permissions), and the Library of Congress live-validation gap.
+
+The independent `kinship.matching.compare_catalog_lead` helper produces **review-only signals** from a normalized catalog lead and a supplied local person. It does not merge identities, create relationships, assume birth dates, or inflate independent source counts. **It is not yet wired into the web UI or AI agent.** Eight offline unit tests pass; live regional connectors remain blocked on access/verification.
+
 ## Architecture and guardrails
 
 Read [ARCHITECTURE](docs/ARCHITECTURE.md), [SECURITY & PRIVACY](docs/SECURITY_PRIVACY.md), [PROVENANCE](docs/PROVENANCE.md), and [ROADMAP](docs/ROADMAP.md).
