@@ -174,6 +174,42 @@ class HTTPArchiveSearchTests(unittest.TestCase):
             self.assertIn("code", response)
         self.assertEqual(len(self.calls), before)
 
+    def test_http_review_only_comparison_of_supplied_person(self):
+        from kinship.online import _normalize
+        status, demo = self.request("/api/demo")
+        self.assertEqual(status, 200)
+        case = demo["case"]
+        person = case["people"][0]
+        name = person["names"][0]["original"]
+        record = _normalize({"id": "https://www.loc.gov/item/synthetic-compare/",
+                             "title": f"{name} archival correspondence", "date": "1901"})
+        before = len(self.calls)
+        status, result = self.request("/api/compare-catalog-lead", {
+            "case": case, "person_id": person["id"], "record": record})
+        self.assertEqual(status, 200, result)
+        self.assertEqual(len(self.calls), before, "Comparison must be offline")
+        self.assertTrue(result["review_required"])
+        self.assertFalse(result["identity_verified"])
+        self.assertFalse(result["claim_created"])
+        self.assertFalse(result["merge_performed"])
+        self.assertEqual(result["new_independent_source_count"], 0)
+        self.assertEqual(result["signals"][0]["type"], "literal_name_mention")
+
+    def test_http_comparison_rejects_unknown_person_and_forged_source(self):
+        from kinship.online import _normalize
+        _, demo = self.request("/api/demo")
+        case = demo["case"]
+        record = _normalize({"id": "https://www.loc.gov/item/synthetic-compare/", "title": "Sample"})
+        for person_id, candidate in [
+            ("missing", record),
+            (case["people"][0]["id"], dict(record, record_url="https://evil.example/item/secret")),
+            (case["people"][0]["id"], dict(record, identity_verified=True)),
+        ]:
+            with self.subTest(person_id=person_id, record_url=candidate.get("record_url")):
+                status, body = self.request("/api/compare-catalog-lead", {
+                    "case": case, "person_id": person_id, "record": candidate})
+                self.assertEqual(status, 400, body)
+
     def test_http_cross_site_origin_is_forbidden(self):
         before = len(self.calls)
         status, response = self.request("/api/search-archives", {"provider_id": "loc", "name": "Jason Huang", "consent": True},

@@ -62,7 +62,7 @@ The shipped pilot UI has **Explore case (local)**, **Search archives (experiment
 ### Regional connector discovery and cautious matching — 2026-11-18
 
 - **GKR-R01 remains PARTIAL:** [REGIONAL_ARCHIVE_CONNECTORS.md](REGIONAL_ARCHIVE_CONNECTORS.md) now records concrete official API/docs, key requirements and next access gates for Korea, Shanghai Library (China), Vietnam, ex-USSR and LoC. This is a feasibility matrix, **not** live search for those regions.
-- **GKR-R08 remains PARTIAL:** `src/kinship/matching.py` supplies deterministic *review-only* name-mention and source-independence signals, with eight unit tests. No identity confidence, person merge or kinship claim is created. API/UI use and fully sourced date/place comparisons are still open.
+- **GKR-R08 remains PARTIAL:** `src/kinship/matching.py` supplies deterministic *review-only* name-mention and source-independence signals, with eight unit tests. No identity confidence, person merge or kinship claim is created. Read-only local HTTP and case-person selection in archive result cards are now implemented; direct independent source authentication, date/place semantic comparisons and real providers are still open.
 - **GKR-S04/S11 remain BLOCKED on a live LoC response:** official documentation is reachable, but automated `fo=json` requests were blocked by web-reader policy; the container's direct test failed DNS resolution. Do not mark this milestone complete from mock replies.
 - Future UX/tree/OCR/GEDCOM work in section D/E is intentionally retained.
 
@@ -77,7 +77,7 @@ The shipped pilot UI has **Explore case (local)**, **Search archives (experiment
 | GKR-R05 | NOT STARTED | Public catalog vs digitized-image detection; metadata-only retrieval when originals are restricted. | View/download is permission-aware, explicit, bounded and legally compliant; no content copied when only catalog viewing is authorized. |
 | GKR-R06 | NOT STARTED | Research workspace connecting person hypotheses, citations, unresolved identities, contradictions and next queries. | Researcher can keep competing explanations without silently merging people or changing evidence states. |
 | GKR-R07 | NOT STARTED | Offline/local index and caching for **licensed** permitted public metadata, with expiration and removal controls. | Provenance/rights retained, sensitive queries not logged by default; never bulk-download a restricted archive. |
-| GKR-R08 | NOT STARTED | Assisted record comparisons and name/date/place similarity prompts. | Ranked **research leads**, not probabilities of proven kinship; human confirms each linkage and sees why suggested. |
+| GKR-R08 | PARTIAL | Assisted record comparisons and name/date/place similarity prompts. | Ranked **research leads**, not probabilities of proven kinship; human confirms each linkage and sees why suggested. |
 | GKR-R09 | NOT STARTED | Expand region-specific depth for Vietnam, China, Korea, Ex-USSR first; then Japan, Taiwan, Philippines, Thailand, Indonesia, Malaysia, India. | Each new region ships with actual licensed source coverage or explicitly manual-only workflow; culturally correct scripts/calendars. |
 | GKR-R10 | NOT STARTED | Cross-border migration and multi-archive research routes linking events in different jurisdictions. | Search plans track migrations and time windows without assuming people with similar names are identical. |
 
@@ -166,3 +166,11 @@ The shipped pilot UI has **Explore case (local)**, **Search archives (experiment
 - Agent and provenance: [agent.py](../src/kinship/agent.py), [audit.py](../src/kinship/audit.py), [PROVENANCE.md](PROVENANCE.md).
 - GEDCOM, graph and local UI: [gedcom.py](../src/kinship/gedcom.py), [graph.py](../src/kinship/graph.py), [family.js](../src/kinship/static/family.js), [GEDCOM_551.md](GEDCOM_551.md).
 - Existing gates and privacy: [QA.md](QA.md), [SECURITY_PRIVACY.md](SECURITY_PRIVACY.md), [verify_release.py](../scripts/verify_release.py).
+
+### 2026-11-23 integration update (GKR-R08, GKR-Q01)
+
+- [x] Connect review-only catalog comparisons to the localhost API (`/api/compare-catalog-lead`) and the Search archives UI without exposing private cases to the external archive provider. Person selection and comparison are initiated locally by the user.
+- [x] Enforce local person ID lookup, official catalog URL and no invented confirmed identity/kinship outcome. The helper remains deliberately non-probabilistic. Imported archive metadata is **not** a primary witness.
+- [x] Full regression: **112 Python tests**, compile/JS checks, 10 HTTP smoke steps, Chromium family component, and desktop/mobile archive-search smoke with synthetic external response; no GitHub Actions.
+- [ ] Live LoC JSON response/record ID still unverified; Korea/Shanghai require issued keys; Vietnam/ex-USSR remain manual-only until a permitted source contract exists.
+- [ ] Future improvements kept open: manual decision history, independent-original verification, historical date/place equivalence, cross-provider duplicates, multi-generation family tree, maps, OCR and GEDCOM 7.

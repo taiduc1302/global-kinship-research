@@ -32,3 +32,10 @@
 @media(max-width:760px){.online-form,.online-results{grid-template-columns:1fr}.online-wide{grid-column:1}.online-actions{align-items:start}.online-pagination{flex-wrap:wrap}}
 
 .online-add{display:block;margin-top:12px;white-space:normal;text-align:left;font-size:11px}
+
+/* Local-only, human-reviewed comparison of catalog metadata to selected case person. */
+.online-compare{display:block;margin-top:8px;white-space:normal;text-align:left;font-size:11px}
+.catalog-compare-panel{margin-top:14px;border-top:1px solid #dce5dd;padding-top:14px}
+.catalog-compare-panel .select{width:100%;margin:8px 0 12px;max-width:100%}
+.catalog-compare-panel .button{white-space:normal;text-align:left}
+.catalog-compare-result{margin-top:9px;overflow-wrap:anywhere}

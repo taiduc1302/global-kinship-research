@@ -15,12 +15,10 @@
 
 **Release decision:** safe to merge a labelled experimental pilot after full offline checks; **do not mark GKR-S04/S11 or v0.4 release complete until a real provider response is validated**, and do not claim search coverage across Asian regions.
 
-## PR #3 combined regression — 2026-11-22
+## 2026-11-23 review-only match integration regression
 
-- Reconstructed the exact PR #3 tree from individually SHA-verified GitHub blobs on a local Linux checkout, using the prior v0.3 source archive as the verified base.
-- `PYTHONPATH=src python -m unittest discover -s tests -q`: **110/110 tests passed** (including eight new matching tests).
-- `python scripts/verify_release.py --browser`: **PASS** — all 110 Python tests, Python compilation, three JS syntax checks, 10 live local HTTP smoke steps, Chromium family component.
-- `python scripts/browser_smoke_online.py`: **PASS** at 1440×900 and 390×844, checking consent, results, pagination, empty results and 429. External archive JSON was simulated: **this is not confirmation of a live LoC response**.
-- The exact current `scripts/verify_release.py` supports `--browser`, not `--browser-e2e`; this run does not claim the latter option. Source authenticity, remote service response, Windows and real-model calls remain untested.
-- Pure matching module remains **review-only and not yet connected to the UI**. No automatic family links or approval.
-- PR #3 may be merged as a tested code + documentation increment; do not mark regional live API access complete.
+- Exact feature code executed with **112/112 Python unit tests passed** (2 new localhost HTTP contract tests; 8 initial matching helper tests preserved).
+- `python scripts/verify_release.py --browser`: **PASS** (Python regression, Python compilation, all 3 JS syntax checks, 10 local HTTP checks, Chromium family component).
+- `python scripts/browser_smoke_online.py`: **PASS** on 1440x900 and 390x844; review-person button opens local selector, returns evidence caution, and does not change person/claim counts.
+- No real names or source images were used; the external archive transport was **synthetic**. This does not validate the live Library of Congress API, direct browser-to-loopback network path, cross-region archive APIs, physical Windows launcher or historical identity.
+- The user must make the comparison explicitly; it does not send private case details to the external archive. Source metadata is not independent proof or an identity match.

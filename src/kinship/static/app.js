@@ -268,6 +268,47 @@ async function acceptArchiveLead(record) {
   notify('Unverified catalog lead added in browser memory. Download your case JSON to keep it. No relationship was created.');
 }
 
+function createCatalogComparison(record, article) {
+  const old = article.querySelector('.catalog-compare-panel');
+  if (old) { old.remove(); return; }
+  const panel = make('section', 'catalog-compare-panel');
+  panel.append(make('h4', '', 'Review a possible connection — not identity proof'));
+  if (!state.case || !Array.isArray(state.case.people) || !state.case.people.length) {
+    panel.append(make('p', 'small-note', 'Open a case with people to compare against.'));
+    article.append(panel); return;
+  }
+  const label = make('label', 'field-label', 'Choose a person in this local case');
+  const select = make('select', 'select');
+  select.setAttribute('aria-label', 'Person to compare with catalog metadata');
+  for (const person of state.case.people) {
+    const option = make('option', '', person.names?.[0]?.original || person.id);
+    option.value = person.id;
+    select.append(option);
+  }
+  label.append(select);
+  const button = make('button', 'button button-soft', 'Review possible name mention');
+  button.type = 'button';
+  const output = make('div', 'catalog-compare-result');
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    output.replaceChildren(make('p', 'small-note', 'Comparing supplied names to catalog metadata…'));
+    try {
+      const result = await api('/api/compare-catalog-lead', {
+        case: state.case, person_id: select.value, record
+      });
+      output.replaceChildren();
+      for (const signal of result.signals || []) {
+        appendText(output, `${signal.type}: ${signal.interpretation}`, 'p', 'detail-ref');
+      }
+      appendText(output, `Independent source groups added: ${result.new_independent_source_count}. No identity or family relationship was confirmed.`, 'p', 'small-note');
+    } catch (error) {
+      output.replaceChildren(make('p', 'small-note', `Comparison unavailable: ${error.message}`));
+    } finally { button.disabled = false; }
+  });
+  panel.append(label, button, output);
+  article.append(panel);
+}
+
 async function init() {
   for (const nav of document.querySelectorAll('.nav-button')) nav.addEventListener('click', () => showView(nav.dataset.view));
   $('search-form').addEventListener('submit', e => { e.preventDefault(); doSearch().catch(err => notify(err.message)); });
@@ -299,6 +340,7 @@ async function init() {
   $('load-demo').addEventListener('click', () => resetDemo().catch(e => notify(e.message)));
   $('save-case').addEventListener('click', downloadCase);
   document.addEventListener('kinship-add-archive-lead', event => acceptArchiveLead(event.detail.record).catch(e => notify(e.message)));
+  document.addEventListener('kinship-compare-archive-lead', event => createCatalogComparison(event.detail.record, event.detail.article));
   $('region-select').addEventListener('change', () => refreshSources().catch(e => notify(e.message)));
   $('agent-region').addEventListener('change', e => { state.region = e.target.value; $('region-select').value = state.region; });
   $('run-audit').addEventListener('click', () => renderEvidence().catch(e => notify(e.message)));
