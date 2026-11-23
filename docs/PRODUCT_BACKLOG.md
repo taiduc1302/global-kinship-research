@@ -59,6 +59,13 @@ The shipped pilot UI has **Explore case (local)**, **Search archives (experiment
 4. **S08 + S09 + S12:** safe review-to-case workflow, evidence independence and privacy.
 5. Run existing release-check + new offline fixtures + controlled live query; update README claims, QA evidence and this backlog before declaring v0.4 complete.
 
+### Regional connector discovery and cautious matching — 2026-11-18
+
+- **GKR-R01 remains PARTIAL:** [REGIONAL_ARCHIVE_CONNECTORS.md](REGIONAL_ARCHIVE_CONNECTORS.md) now records concrete official API/docs, key requirements and next access gates for Korea, Shanghai Library (China), Vietnam, ex-USSR and LoC. This is a feasibility matrix, **not** live search for those regions.
+- **GKR-R08 remains PARTIAL:** `src/kinship/matching.py` supplies deterministic *review-only* name-mention and source-independence signals, with eight unit tests. No identity confidence, person merge or kinship claim is created. API/UI use and fully sourced date/place comparisons are still open.
+- **GKR-S04/S11 remain BLOCKED on a live LoC response:** official documentation is reachable, but automated `fo=json` requests were blocked by web-reader policy; the container's direct test failed DNS resolution. Do not mark this milestone complete from mock replies.
+- Future UX/tree/OCR/GEDCOM work in section D/E is intentionally retained.
+
 ## C. P1 — expand useful research after pilot works
 
 | ID | Status | Future task / rationale | Acceptance target |
