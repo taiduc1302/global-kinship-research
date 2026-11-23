@@ -56,6 +56,11 @@ function displayRecord(record) {
   candidate.addEventListener('click', () => document.dispatchEvent(
     new CustomEvent('kinship-add-archive-lead', {detail: {record}})));
   article.append(candidate);
+  const compare = textElement('button', 'button button-soft online-compare', 'Compare with person in my case');
+  compare.type = 'button';
+  compare.addEventListener('click', () => document.dispatchEvent(
+    new CustomEvent('kinship-compare-archive-lead', {detail: {record, article}})));
+  article.append(compare);
   return article;
 }
 function showSearch(data) {

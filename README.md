@@ -102,7 +102,6 @@ Run the offline release gate from the repository root (requires Python 3.10+ and
 python scripts/verify_release.py
 python scripts/verify_release.py --browser             # optional Chromium component smoke
 python scripts/browser_smoke_online.py                 # optional synthetic archive transport UI smoke
-python scripts/verify_release.py --browser --browser-e2e  # UI + real local API via test bridge
 ```
 
 The gate runs all local Python tests, compiles Python, checks all JavaScript files with Node, and starts a **real loopback HTTP server** for a synthetic GEDCOM import/search/graph/agent/API security smoke. It returns a nonzero exit code and a machine-readable JSON summary if any required check fails. No GitHub Actions, paid CI, archive access or AI keys are needed. The optional browser component test uses a simulated graph API and is **not** a complete live-browser end-to-end test.
@@ -123,7 +122,7 @@ All tests use synthetic cases. Real Windows launch, external AI calls, real arch
 
 See [regional connector access matrix](docs/REGIONAL_ARCHIVE_CONNECTORS.md) for Korea (issued API key), Shanghai Library (developer key), Vietnam (human-facing search, public third-party API not established), ex-USSR (custodian-specific permissions), and the Library of Congress live-validation gap.
 
-The independent `kinship.matching.compare_catalog_lead` helper produces **review-only signals** from a normalized catalog lead and a supplied local person. It does not merge identities, create relationships, assume birth dates, or inflate independent source counts. **It is not yet wired into the web UI or AI agent.** Eight offline unit tests pass; live regional connectors remain blocked on access/verification.
+The independent `kinship.matching.compare_catalog_lead` helper produces **review-only signals** from a normalized catalog lead and a supplied local person. It does not merge identities, create relationships, assume birth dates, or inflate independent source counts. **It is now connected to the local HTTP API and the Search archives result cards**: choose an existing person and review name mentions; no person merge, claim creation or increase in independent witnesses. The agent does not auto-match or approve. The combined 112-test offline suite and desktop/mobile Chromium synthetic archive smoke pass. Live regional connectors still require separately verified access.
 
 ## Architecture and guardrails
 

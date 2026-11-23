@@ -97,6 +97,11 @@ def main():
                     assert page.locator("#online-results .online-result").count() == 1
                     assert "catalog leads" in page.locator("#online-search-status").inner_text()
                     assert page.locator("#online-results a").get_attribute("href") == "https://www.loc.gov/item/fictional-123/"
+                    page.locator("#online-results .online-compare").click()
+                    page.locator(".catalog-compare-panel select").first.wait_for(timeout=4000)
+                    page.locator(".catalog-compare-panel button").first.click()
+                    page.get_by_text("No identity or family relationship was confirmed.", exact=False).first.wait_for(timeout=5000)
+                    assert page.locator("#stat-claims").inner_text() == "2"
                     page.locator("#online-results .online-add").click()
                     page.wait_for_function("document.querySelector('#stat-artifacts').textContent === '4'", timeout=5000)
                     assert page.locator('#stat-claims').inner_text() == '2', 'A catalog lead created a genealogy claim without review'

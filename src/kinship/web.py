@@ -8,7 +8,8 @@ import json
 
 from kinship.agent import OpenAICompatibleClient, ResearchAgent
 from kinship.gedcom import import_gedcom
-from kinship.online import ArchiveSearchError, LibraryOfCongressSearch, COLLECTIONS
+from kinship.online import ArchiveSearchError, LibraryOfCongressSearch, COLLECTIONS, _item_url
+from kinship.matching import compare_catalog_lead
 from kinship.graph import relationship_graph
 from kinship.audit import audit_case
 from kinship.catalog import list_archive_leads
@@ -137,6 +138,35 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
                     start_year=payload.get("start_year"), end_year=payload.get("end_year"),
                     collection=payload.get("collection", "manuscripts"), page=payload.get("page", 1),
                     consent=payload.get("consent") is True)
+            elif path == "/api/compare-catalog-lead":
+                case = payload["case"]
+                person_id = payload["person_id"]
+                record = payload["record"]
+                if not isinstance(case, dict) or not isinstance(person_id, str) or not isinstance(record, dict):
+                    raise ValueError("Case, person ID and catalog record are required")
+                # Only compare metadata from the currently enabled provider, and
+                # never claim an arbitrary link is an official catalog record.
+                canonical = _item_url(record.get("record_url"))
+                if (record.get("provider_id") != "loc" or canonical is None
+                        or canonical != record.get("record_id") or canonical != record.get("record_url")):
+                    raise ValueError("Only well-formed Library of Congress catalog leads are supported")
+                people = case.get("people")
+                if not isinstance(people, list):
+                    raise ValueError("Case people must be a list")
+                matches = [person for person in people if isinstance(person, dict) and person.get("id") == person_id]
+                if len(matches) != 1:
+                    raise ValueError("Person must be present exactly once in the local case")
+                claims = case.get("claims", [])
+                artifacts = case.get("artifacts", [])
+                if not isinstance(claims, list) or not isinstance(artifacts, list):
+                    raise ValueError("Case claims and artifacts must be lists")
+                claim_ids = {art_id for claim in claims if isinstance(claim, dict)
+                             and claim.get("subject_id") == person_id
+                             for art_id in (claim.get("artifact_ids") if isinstance(claim.get("artifact_ids"), list) else [])}
+                groups = [art.get("independence_group") for art in artifacts
+                          if isinstance(art, dict) and art.get("id") in claim_ids
+                          and isinstance(art.get("independence_group"), str)]
+                result = compare_catalog_lead(matches[0], record, cited_source_groups=groups)
             elif path == "/api/graph":
                 result = relationship_graph(payload["case"])
             elif path == "/api/import-gedcom":
