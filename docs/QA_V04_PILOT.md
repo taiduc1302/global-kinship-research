@@ -14,3 +14,13 @@
 **Not verified:** successful request to the **live** Library of Congress API (development DNS blocked), per-collection response variations from real endpoints, third-party real GEDCOMs, real local LLM tool calling, Windows installer/launcher compatibility, cross-region live search, and accessibility/security audit.
 
 **Release decision:** safe to merge a labelled experimental pilot after full offline checks; **do not mark GKR-S04/S11 or v0.4 release complete until a real provider response is validated**, and do not claim search coverage across Asian regions.
+
+## PR #3 combined regression — 2026-11-22
+
+- Reconstructed the exact PR #3 tree from individually SHA-verified GitHub blobs on a local Linux checkout, using the prior v0.3 source archive as the verified base.
+- `PYTHONPATH=src python -m unittest discover -s tests -q`: **110/110 tests passed** (including eight new matching tests).
+- `python scripts/verify_release.py --browser`: **PASS** — all 110 Python tests, Python compilation, three JS syntax checks, 10 live local HTTP smoke steps, Chromium family component.
+- `python scripts/browser_smoke_online.py`: **PASS** at 1440×900 and 390×844, checking consent, results, pagination, empty results and 429. External archive JSON was simulated: **this is not confirmation of a live LoC response**.
+- The exact current `scripts/verify_release.py` supports `--browser`, not `--browser-e2e`; this run does not claim the latter option. Source authenticity, remote service response, Windows and real-model calls remain untested.
+- Pure matching module remains **review-only and not yet connected to the UI**. No automatic family links or approval.
+- PR #3 may be merged as a tested code + documentation increment; do not mark regional live API access complete.
